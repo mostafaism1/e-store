@@ -3,7 +3,10 @@ package com.commerce.model.common;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 
+import lombok.Data;
+
 @Embeddable
+@Data
 public class ShippingInformation {
 	
 	@Min(value = 0, message = "Length must be positive")
