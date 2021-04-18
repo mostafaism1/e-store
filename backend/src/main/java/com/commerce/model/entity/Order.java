@@ -9,6 +9,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
 import com.commerce.model.common.Address;
 import com.commerce.model.common.BaseEntity;
@@ -41,6 +42,7 @@ public class Order extends BaseEntity {
 
 	private Instant placedAt;
 
+	@Pattern(regexp = "^[a-zA-Z\\s]+$")
 	private String shippingCompany;
 
 	private Boolean isDelivered;
