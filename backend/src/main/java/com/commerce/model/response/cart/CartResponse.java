@@ -13,7 +13,7 @@ public class CartResponse {
     private List<CartItemDTO> cartItems;
     private DiscountDTO discount;
     private Double totalCartPrice;
-    private Double totalCargoPrice;
+    private Double totalShippingPrice;
     private Double totalPrice;
 
 }

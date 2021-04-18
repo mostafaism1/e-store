@@ -32,6 +32,9 @@ public class ProductVariant extends BaseEntity {
 	@Min(value = 0, message = "Price must be a positive number")
 	private Double price;
 
+	@Min(value = 0, message = "Price must be a positive number")
+	private Double shippingPrice;
+
 	@Min(value = 0, message = "Tax percent must be a positive number")
 	private Double taxPercent;
 
