@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 public class ProductVariant extends BaseEntity {
 
 	@ManyToOne(optional = false)
-	@NotNull(message = "Product is required")
 	private Product product;
 
 	@ManyToOne

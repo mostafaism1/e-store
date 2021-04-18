@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Min;
 
 import com.commerce.model.common.BaseEntity;
 
@@ -25,6 +26,7 @@ public class Discount extends BaseEntity {
 
 	private String code;
 
+	@Min(0)
 	private Integer discountPercent;
 
 	private Boolean isActive;
