@@ -14,6 +14,8 @@ import javax.validation.constraints.Pattern;
 import com.commerce.model.common.Address;
 import com.commerce.model.common.BaseEntity;
 
+import org.springframework.data.annotation.Transient;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -51,6 +53,30 @@ public class Order extends BaseEntity {
 	private void prePersist() {
 		placedAt = Instant.now();
 		isDelivered = false;
+	}
+
+	@Transient
+	public Double getTotalPrice() {
+
+		Double itemsPrice = orderItems.stream()
+				.map(orderItem -> orderItem.getProductVariant().getPrice() * orderItem.getQuantity())
+				.reduce(0D, Double::sum);
+
+		Double totalShippingPrice = getTotalShippingPrice();
+
+		Double discountedPrice = (itemsPrice + totalShippingPrice) * (1 - (100.0 - discount.getDiscountPercent()) / 100);
+
+		return discountedPrice;
+
+	}
+
+	@Transient
+	public Double getTotalShippingPrice() {
+
+		return orderItems.stream()
+				.map(orderItem -> orderItem.getProductVariant().getShippingPrice() * orderItem.getQuantity())
+				.reduce(0D, Double::sum);
+
 	}
 
 }
