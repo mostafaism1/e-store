@@ -4,7 +4,6 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import com.commerce.model.common.BaseEntity;
 import com.commerce.model.common.ShippingInformation;
@@ -29,7 +28,7 @@ public class ProductVariant extends BaseEntity {
 	private ShippingInformation shippingInformation;
 
 	private String composition;
-	
+
 	@Min(value = 0, message = "Price must be a positive number")
 	private Double price;
 
@@ -44,7 +43,7 @@ public class ProductVariant extends BaseEntity {
 	private Integer stock;
 
 	private Integer sellCount;
-	
+
 	private Boolean isActive;
 
 }
