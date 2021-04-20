@@ -78,4 +78,23 @@ public class UserServiceImplTest {
 
     }
 
+    @Test
+    void ShouldNot_Register_Given_ConflictingEmailAddress() {
+
+        // given
+        String email = faker.internet().emailAddress();
+        String password = faker.internet().password(6, 52);
+        RegisterRequest registerUserRequest = new RegisterRequest();
+        registerUserRequest.setEmail(email);
+        registerUserRequest.setPassword(password);
+        registerUserRequest.setPasswordConfirmation(password);
+
+        given(userRepository.existsByEmail(email)).willReturn(true);
+
+        // when, then
+        assertThatThrownBy(() -> userService.register(registerUserRequest)).isInstanceOf(InvalidArgumentException.class)
+                .hasMessage("An account already exists with this email");
+
+    }
+
 }
