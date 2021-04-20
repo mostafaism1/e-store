@@ -13,6 +13,10 @@ public class ColorDTOMapper implements Function<Color, ColorDTO> {
     @Override
     public ColorDTO apply(Color color) {
 
+        if (color == null) {
+            return null;
+        }
+
         return ColorDTO.builder().name(color.getName()).hex(color.getHex()).build();
 
     }

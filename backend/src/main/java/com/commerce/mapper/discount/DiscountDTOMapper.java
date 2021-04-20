@@ -13,6 +13,10 @@ public class DiscountDTOMapper implements Function<Discount, DiscountDTO> {
     @Override
     public DiscountDTO apply(Discount discount) {
 
+        if (discount == null) {
+            return null;
+        }
+
         return DiscountDTO.builder().discountPercent(discount.getDiscountPercent()).isActive(discount.getIsActive())
                 .build();
 

@@ -21,6 +21,10 @@ public class OrderItemDTOMapper implements Function<OrderItem, OrderItemDTO> {
     @Override
     public OrderItemDTO apply(OrderItem orderItem) {
 
+        if (orderItem == null) {
+            return null;
+        }
+
         return OrderItemDTO.builder().url(orderItem.getProductVariant().getProduct().getUrl())
                 .name(orderItem.getProductVariant().getProduct().getName())
                 .price(orderItem.getProductVariant().getPrice())

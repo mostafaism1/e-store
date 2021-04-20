@@ -19,6 +19,10 @@ public class CartResponseMapper implements Function<Cart, CartResponse> {
     @Override
     public CartResponse apply(Cart cart) {
 
+        if (cart == null) {
+            return null;
+        }
+
         CartResponse cartResponse = new CartResponse();
         cartResponse.setCartItems(cart.getCartItems().stream().map(cartItem -> cartItemDTOMapper.apply(cartItem))
                 .collect(Collectors.toList()));

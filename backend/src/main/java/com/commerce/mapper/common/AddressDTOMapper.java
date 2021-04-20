@@ -13,6 +13,10 @@ public class AddressDTOMapper implements Function<Address, AddressDTO> {
     @Override
     public AddressDTO apply(Address address) {
 
+        if (address == null) {
+            return null;
+        }
+
         AddressDTO addressDTO = new AddressDTO(address.getCountry(), address.getState(), address.getCity(),
                 address.getAddress(), address.getZip(), address.getPhone());
 

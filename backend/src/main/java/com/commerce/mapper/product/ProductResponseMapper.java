@@ -19,6 +19,10 @@ public class ProductResponseMapper implements Function<Product, ProductResponse>
     @Override
     public ProductResponse apply(Product product) {
 
+        if (product == null) {
+            return null;
+        }
+
         ProductResponse productResponse = new ProductResponse();
         productResponse.setName(product.getName());
         productResponse.setUrl(product.getUrl());

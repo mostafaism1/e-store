@@ -19,6 +19,10 @@ public class ProductVariantDTOMapper implements Function<ProductVariant, Product
     @Override
     public ProductVariantDTO apply(ProductVariant productVariant) {
 
+        if (productVariant == null) {
+            return null;
+        }
+
         return ProductVariantDTO.builder().id(productVariant.getId()).price(productVariant.getPrice())
                 .thumbURL(productVariant.getThumbURL()).stock(productVariant.getStock())
                 .color(colorDTOMapper.apply(productVariant.getColor())).build();

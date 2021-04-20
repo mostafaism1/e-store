@@ -13,6 +13,10 @@ public class CategoryDTOMapper implements Function<ProductCategory, CategoryDTO>
     @Override
     public CategoryDTO apply(ProductCategory productCategory) {
 
+        if (productCategory == null) {
+            return null;
+        }
+
         CategoryDTO categoryDTO = new CategoryDTO(productCategory.getName());
 
         return categoryDTO;

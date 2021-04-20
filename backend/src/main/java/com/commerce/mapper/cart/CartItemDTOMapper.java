@@ -19,6 +19,10 @@ public class CartItemDTOMapper implements Function<CartItem, CartItemDTO> {
     @Override
     public CartItemDTO apply(CartItem cartItem) {
 
+        if (cartItem == null) {
+            return null;
+        }
+
         return CartItemDTO.builder().id(cartItem.getId()).url(cartItem.getProductVariant().getProduct().getUrl())
                 .name(cartItem.getProductVariant().getProduct().getName())
                 .price(cartItem.getProductVariant().getPrice()).quantity(cartItem.getQuantity())

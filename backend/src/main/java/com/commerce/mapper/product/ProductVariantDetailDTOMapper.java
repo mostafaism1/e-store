@@ -21,6 +21,10 @@ public class ProductVariantDetailDTOMapper implements Function<ProductVariant, P
     @Override
     public ProductVariantDetailDTO apply(ProductVariant productVariant) {
 
+        if (productVariant == null) {
+            return null;
+        }
+
         return ProductVariantDetailDTO.builder().id(productVariant.getId())
                 .shippingInformation(shippingInformationDTOMapper.apply(productVariant.getShippingInformation()))
                 .composition(productVariant.getComposition()).price(productVariant.getPrice())
