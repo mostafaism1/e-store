@@ -39,7 +39,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void shouldRegisterUser() {
+    public void Should_Register_Given_NonConflictingEmailAddress() {
 
         // given
         String email = faker.internet().emailAddress();
