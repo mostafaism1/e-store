@@ -2,15 +2,16 @@ package com.commerce.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+
+import java.util.Optional;
 
 import com.commerce.dao.UserRepository;
 import com.commerce.error.exception.InvalidArgumentException;
+import com.commerce.model.common.Address;
+import com.commerce.model.dto.AddressDTO;
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.RegisterRequest;
 import com.commerce.model.response.user.UserResponse;
@@ -38,28 +39,62 @@ public class UserServiceImplTest {
 
     private Faker faker;
 
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
+    private Address address;
+    private Boolean isVerified;
+    private User validUser;
+    private UserResponse validUserResponse;
+
     @BeforeEach
     public void setUp() {
+
         faker = new Faker();
+
+        email = faker.internet().emailAddress();
+        password = faker.internet().password(6, 52);
+        firstName = faker.name().firstName();
+        lastName = faker.name().lastName();
+        address = new Address();
+        address.setCountry("Egypt");
+        address.setState("Cairo");
+        address.setCity("Heliopolis");
+        address.setAddress("55 Maamoon street");
+        address.setZip("12345");
+        address.setPhone("01234567891");
+        isVerified = true;
+
+        validUser = new User();
+        validUser.setEmail(email);
+        validUser.setFirstName(firstName);
+        validUser.setLastName(lastName);
+        validUser.setAddress(address);
+        validUser.setIsVerified(isVerified);
+
+        validUserResponse = new UserResponse();
+        validUserResponse.setEmail(email);
+        validUserResponse.setFirstName(firstName);
+        validUserResponse.setLastName(lastName);
+        validUserResponse.setAddress(new AddressDTO(address.getCountry(), address.getState(), address.getCity(),
+                address.getAddress(), address.getZip(), address.getPhone()));
+        validUserResponse.setIsVerified(isVerified);
+
     }
 
     @Test
     void Should_Register_Given_NonConflictingEmailAddress() {
 
         // given
-        String email = faker.internet().emailAddress();
-        String password = faker.internet().password(6, 52);
         RegisterRequest registerUserRequest = new RegisterRequest();
         registerUserRequest.setEmail(email);
         registerUserRequest.setPassword(password);
         registerUserRequest.setPasswordConfirmation(password);
 
-        UserResponse userExpected = new UserResponse();
-        userExpected.setEmail(email);
-        userExpected.setAddress(null);
-        userExpected.setFirstName(null);
-        userExpected.setLastName(null);
-        userExpected.setIsVerified(false);
+        UserResponse expected = new UserResponse();
+        expected.setEmail(email);
+        expected.setIsVerified(false);
 
         given(userRepository.existsByEmail(email)).willReturn(false);
 
@@ -70,11 +105,11 @@ public class UserServiceImplTest {
         });
 
         // when
-        UserResponse userActual = userService.register(registerUserRequest);
+        UserResponse actual = userService.register(registerUserRequest);
 
-        // then        
+        // then
         BDDMockito.then(userRepository).should(times(1)).save(any(User.class));
-        then(userActual).usingRecursiveComparison().isEqualTo(userExpected);
+        then(actual).usingRecursiveComparison().isEqualTo(expected);
 
     }
 
@@ -82,8 +117,6 @@ public class UserServiceImplTest {
     void ShouldNot_Register_Given_ConflictingEmailAddress() {
 
         // given
-        String email = faker.internet().emailAddress();
-        String password = faker.internet().password(6, 52);
         RegisterRequest registerUserRequest = new RegisterRequest();
         registerUserRequest.setEmail(email);
         registerUserRequest.setPassword(password);
