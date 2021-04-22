@@ -58,12 +58,12 @@ public class UserServiceImplTest {
         firstName = faker.name().firstName();
         lastName = faker.name().lastName();
         address = new Address();
-        address.setCountry("Egypt");
-        address.setState("Cairo");
-        address.setCity("Heliopolis");
-        address.setAddress("55 Maamoon street");
-        address.setZip("12345");
-        address.setPhone("01234567891");
+        address.setCountry(faker.address().country());
+        address.setState(faker.address().state());
+        address.setCity(faker.address().city());
+        address.setAddress(faker.address().streetAddress());
+        address.setZip(faker.address().zipCode());
+        address.setPhone(faker.number().digits(11));
         isVerified = true;
 
         validUser = new User();
@@ -127,6 +127,37 @@ public class UserServiceImplTest {
         // when, then
         assertThatThrownBy(() -> userService.register(registerUserRequest)).isInstanceOf(InvalidArgumentException.class)
                 .hasMessage("An account already exists with this email");
+
+    }
+
+
+    @Test
+    void Should_FindUser_Given_RegisteredEmail() {
+
+        // given
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+
+        // when
+        UserResponse actual = userService.findByEmail(email);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
+        then(actual).usingRecursiveComparison().isEqualTo(validUserResponse);
+
+    }
+
+    @Test
+    void ShouldNot_FindUser_Given_NonRegisteredEmail() {
+
+        // given
+        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        // when
+        UserResponse actual = userService.findByEmail(email);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
+        then(actual).usingRecursiveComparison().isEqualTo(null);
 
     }
 
