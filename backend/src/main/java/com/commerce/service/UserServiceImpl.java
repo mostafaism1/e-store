@@ -37,8 +37,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse findByEmail(String email) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        return userResponseMapper.apply(user);
+
     }
 
     @Override
