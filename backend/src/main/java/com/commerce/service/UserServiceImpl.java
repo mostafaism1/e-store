@@ -113,7 +113,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void resetPassword(PasswordResetRequest passwordResetRequest) {
-        // TODO Auto-generated method stub
+
+        User user = getAuthenticatedUser();
+
+        if (passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.getPassword())) {
+            throw new InvalidArgumentException("Invalid password");
+        }
+
+        user.setPassword(passwordEncoder.encode(passwordResetRequest.getPassword()));
+
+        userRepository.save(user);
 
     }
 
