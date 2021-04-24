@@ -5,6 +5,7 @@ import com.commerce.error.exception.AccessDeniedException;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.user.UserResponseMapper;
+import com.commerce.model.common.Address;
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.PasswordResetRequest;
 import com.commerce.model.request.user.RegisterRequest;
@@ -93,8 +94,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUserAddress(UpdateUserAddressRequest updateUserAddressRequest) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getAuthenticatedUser();
+
+        Address updatedAddress = new Address();
+        updatedAddress.setCountry(updateUserAddressRequest.getCountry());
+        updatedAddress.setState(updateUserAddressRequest.getState());
+        updatedAddress.setCity(updateUserAddressRequest.getCity());
+        updatedAddress.setAddress(updateUserAddressRequest.getAddress());
+        updatedAddress.setZip(updateUserAddressRequest.getZip());
+        user.setAddress(updatedAddress);
+
+        User savedUser = userRepository.save(user);
+
+        return userResponseMapper.apply(savedUser);
+
     }
 
     @Override
