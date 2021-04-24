@@ -514,4 +514,34 @@ public class UserServiceImplTest {
 
     }
 
+    @Test
+    void Should_ReturnTrue_When_UserExists() {
+
+        // given
+        given(userRepository.existsByEmail(email)).willReturn(true);
+
+        // when
+        Boolean actual = userService.userExists(email);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).existsByEmail(email);
+        then(actual).isEqualTo(true);
+
+    }
+
+    @Test
+    void Should_ReturnFalse_When_UserDoesNotExists() {
+
+        // given
+        given(userRepository.existsByEmail(email)).willReturn(false);
+
+        // when
+        Boolean actual = userService.userExists(email);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).existsByEmail(email);
+        then(actual).isEqualTo(false);
+
+    }
+
 }
