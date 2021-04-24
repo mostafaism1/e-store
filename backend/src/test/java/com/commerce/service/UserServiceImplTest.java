@@ -16,6 +16,7 @@ import com.commerce.model.common.Address;
 import com.commerce.model.dto.AddressDTO;
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.RegisterRequest;
+import com.commerce.model.request.user.UpdateUserRequest;
 import com.commerce.model.response.user.UserResponse;
 import com.github.javafaker.Faker;
 
@@ -302,6 +303,78 @@ public class UserServiceImplTest {
         // when, then
         assertThatThrownBy(() -> userService.getCurrentUser()).isInstanceOf(AccessDeniedException.class)
                 .hasMessage("Invalid access");
+
+    }
+
+    @Test
+    void Should_UpdateUser() {
+
+        // given
+        String updatedFirstName = faker.name().firstName();
+        String updatedLastName = faker.name().lastName();
+        String updatedPhone = faker.number().digits(11);
+
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        updateUserRequest.setFirstName(updatedFirstName);
+        updateUserRequest.setLastName(updatedLastName);
+        updateUserRequest.setPhone(updatedPhone);
+
+        validUser.setFirstName(updatedFirstName);
+        validUser.setLastName(updatedLastName);
+        validUser.getAddress().setPhone(updatedPhone);
+
+        UserResponse expected = validUserResponse;
+        expected.setFirstName(updatedFirstName);
+        expected.setLastName(updatedLastName);
+        expected.getAddress().setPhone(updatedPhone);
+
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+        given(userRepository.save(validUser)).willReturn(validUser);
+
+        // when
+        UserResponse actual = userService.updateUser(updateUserRequest);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).save(any(User.class));
+        then(actual).usingRecursiveComparison().isEqualTo(expected);
 
     }
 
