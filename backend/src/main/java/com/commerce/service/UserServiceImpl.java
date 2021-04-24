@@ -29,13 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getCurrentUser() {
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email == null) {
-            throw new AccessDeniedException("Invalid access");
-        }
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = getAuthenticatedUser();
 
         return userResponseMapper.apply(user);
 
@@ -85,8 +79,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UpdateUserRequest updateUserRequest) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getAuthenticatedUser();
+        user.setFirstName(updateUserRequest.getFirstName());
+        user.setLastName(updateUserRequest.getLastName());
+        user.getAddress().setPhone(updateUserRequest.getPhone());
+
+        User savedUser = userRepository.save(user);
+
+        return userResponseMapper.apply(savedUser);
+
     }
 
     @Override
@@ -111,6 +113,19 @@ public class UserServiceImpl implements UserService {
     public Boolean getVerificationStatus() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    private User getAuthenticatedUser() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email == null) {
+            throw new AccessDeniedException("Invalid access");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return user;
+
     }
 
 }
