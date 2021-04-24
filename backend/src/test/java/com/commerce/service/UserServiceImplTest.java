@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import com.commerce.dao.UserRepository;
+import com.commerce.error.exception.AccessDeniedException;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.model.common.Address;
 import com.commerce.model.dto.AddressDTO;
@@ -25,6 +27,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @SpringBootTest
@@ -83,6 +89,46 @@ public class UserServiceImplTest {
         validUserResponse.setAddress(new AddressDTO(address.getCountry(), address.getState(), address.getCity(),
                 address.getAddress(), address.getZip(), address.getPhone()));
         validUserResponse.setIsVerified(isVerified);
+
+        SecurityContextHolder.setContext(new SecurityContextImpl());
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return false;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
 
     }
 
@@ -193,6 +239,69 @@ public class UserServiceImplTest {
         // when, then
         assertThatThrownBy(() -> userService.saveUser(null)).isInstanceOf(InvalidArgumentException.class)
                 .hasMessage("Null user");
+
+    }
+
+    @Test
+    void Should_GetCurrentUser() {
+
+        // given
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+
+        // when
+        UserResponse actual = userService.getCurrentUser();
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
+        then(actual).usingRecursiveComparison().isEqualTo(validUserResponse);
+
+    }
+
+    @Test
+    void ShouldNot_GetCurrentUser_When_ContextAuthenticatedUserIsNull() {
+
+        // given
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return false;
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        // when, then
+        assertThatThrownBy(() -> userService.getCurrentUser()).isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Invalid access");
 
     }
 
