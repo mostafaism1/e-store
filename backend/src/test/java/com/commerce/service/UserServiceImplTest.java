@@ -544,4 +544,115 @@ public class UserServiceImplTest {
 
     }
 
+    @Test
+    void Should_ReturnTrue_When_UserIsVerified() {
+
+        // given
+        validUser.setIsVerified(true);
+
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+
+        // when
+        Boolean actual = userService.getVerificationStatus();
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
+        then(actual).isEqualTo(true);
+
+    }
+
+    @Test
+    void Should_ReturnFalse_When_UserIsNotVerified() {
+
+        // given
+
+        validUser.setIsVerified(false);
+
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+
+        // when
+        Boolean actual = userService.getVerificationStatus();
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
+        then(actual).isEqualTo(false);
+
+    }
+
 }
