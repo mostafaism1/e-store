@@ -44,6 +44,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse findByEmail(String email) {
 
+        if (email == null) {
+            throw new InvalidArgumentException("Null email");
+        }
+
         User user = userRepository.findByEmail(email).orElse(null);
         return userResponseMapper.apply(user);
 

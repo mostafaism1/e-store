@@ -164,6 +164,15 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void ShouldNot_FindUser_Given_NullEmail() {
+
+        // when, then
+        assertThatThrownBy(() -> userService.findByEmail(null)).isInstanceOf(InvalidArgumentException.class)
+                .hasMessage("Null email");
+
+    }
+
+    @Test
     void Should_SaveUser_Given_ValidUser() {
 
         // given
