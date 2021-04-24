@@ -128,8 +128,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean userExists(String email) {
-        // TODO Auto-generated method stub
-        return null;
+        return userRepository.existsByEmail(email);
     }
 
     @Override
