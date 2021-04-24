@@ -133,8 +133,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean getVerificationStatus() {
-        // TODO Auto-generated method stub
-        return null;
+        
+        User user = getAuthenticatedUser();
+        return user.getIsVerified();
+
     }
 
     private User getAuthenticatedUser() {
