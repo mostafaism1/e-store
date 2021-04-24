@@ -16,6 +16,7 @@ import com.commerce.model.common.Address;
 import com.commerce.model.dto.AddressDTO;
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.RegisterRequest;
+import com.commerce.model.request.user.UpdateUserAddressRequest;
 import com.commerce.model.request.user.UpdateUserRequest;
 import com.commerce.model.response.user.UserResponse;
 import com.github.javafaker.Faker;
@@ -375,6 +376,79 @@ public class UserServiceImplTest {
         // then
         BDDMockito.then(userRepository).should(times(1)).save(any(User.class));
         then(actual).usingRecursiveComparison().isEqualTo(expected);
+
+    }
+
+    @Test
+    void Should_UpdateUserAddress() {
+
+        // given
+        String updatedCountry = faker.address().country();
+        String updatedState = faker.address().state();
+        String updatedCity = faker.address().city();
+        String updatedAddress = faker.address().streetAddress();
+        String updatedZip = faker.address().zipCode();
+
+        UpdateUserAddressRequest updateUserAddressRequest = new UpdateUserAddressRequest();
+        updateUserAddressRequest.setCountry(updatedCountry);
+        updateUserAddressRequest.setState(updatedState);
+        updateUserAddressRequest.setCity(updatedCity);
+        updateUserAddressRequest.setAddress(updatedAddress);
+        updateUserAddressRequest.setZip(updatedZip);
+
+        validUser.getAddress().setCountry(updatedCountry);
+        validUser.getAddress().setState(updatedState);
+        validUser.getAddress().setCity(updatedCity);
+        validUser.getAddress().setAddress(updatedAddress);
+        validUser.getAddress().setZip(updatedZip);
+
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+        given(userRepository.save(validUser)).willReturn(validUser);
+
+        // when
+        UserResponse actual = userService.updateUserAddress(updateUserAddressRequest);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).save(validUser);
+        then(actual).usingRecursiveComparison().isEqualTo(validUser);
 
     }
 
