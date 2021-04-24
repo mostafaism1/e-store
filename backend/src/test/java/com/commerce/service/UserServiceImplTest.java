@@ -93,6 +93,7 @@ public class UserServiceImplTest {
                 address.getAddress(), address.getZip(), address.getPhone()));
         validUserResponse.setIsVerified(isVerified);
 
+        // set user with email = email to be authenticated
         SecurityContextHolder.setContext(new SecurityContextImpl());
         SecurityContextHolder.getContext().setAuthentication(new Authentication() {
 
@@ -118,7 +119,7 @@ public class UserServiceImplTest {
 
             @Override
             public boolean isAuthenticated() {
-                return false;
+                return true;
             }
 
             @Override
@@ -264,6 +265,7 @@ public class UserServiceImplTest {
     void ShouldNot_GetCurrentUser_When_ContextAuthenticatedUserIsNull() {
 
         // given
+
         SecurityContextHolder.getContext().setAuthentication(new Authentication() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -330,44 +332,6 @@ public class UserServiceImplTest {
         expected.setLastName(updatedLastName);
         expected.getAddress().setPhone(updatedPhone);
 
-        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public Object getCredentials() {
-                return null;
-            }
-
-            @Override
-            public Object getDetails() {
-                return null;
-            }
-
-            @Override
-            public Object getPrincipal() {
-                return null;
-            }
-
-            @Override
-            public boolean isAuthenticated() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return email;
-            }
-
-            @Override
-            public void setAuthenticated(boolean b) throws IllegalArgumentException {
-
-            }
-
-        });
-
         given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
         given(userRepository.save(validUser)).willReturn(validUser);
 
@@ -403,44 +367,6 @@ public class UserServiceImplTest {
         validUser.getAddress().setAddress(updatedAddress);
         validUser.getAddress().setZip(updatedZip);
 
-        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public Object getCredentials() {
-                return null;
-            }
-
-            @Override
-            public Object getDetails() {
-                return null;
-            }
-
-            @Override
-            public Object getPrincipal() {
-                return null;
-            }
-
-            @Override
-            public boolean isAuthenticated() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return email;
-            }
-
-            @Override
-            public void setAuthenticated(boolean b) throws IllegalArgumentException {
-
-            }
-
-        });
-
         given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
         given(userRepository.save(validUser)).willReturn(validUser);
 
@@ -464,44 +390,6 @@ public class UserServiceImplTest {
         passwordResetRequest.setPasswordConfirmation(updatedPassword);
 
         validUser.setPassword(updatedPassword);
-
-        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public Object getCredentials() {
-                return null;
-            }
-
-            @Override
-            public Object getDetails() {
-                return null;
-            }
-
-            @Override
-            public Object getPrincipal() {
-                return null;
-            }
-
-            @Override
-            public boolean isAuthenticated() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return email;
-            }
-
-            @Override
-            public void setAuthenticated(boolean b) throws IllegalArgumentException {
-
-            }
-
-        });
 
         given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
         given(userRepository.save(validUser)).willReturn(validUser);
@@ -550,44 +438,6 @@ public class UserServiceImplTest {
         // given
         validUser.setIsVerified(true);
 
-        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public Object getCredentials() {
-                return null;
-            }
-
-            @Override
-            public Object getDetails() {
-                return null;
-            }
-
-            @Override
-            public Object getPrincipal() {
-                return null;
-            }
-
-            @Override
-            public boolean isAuthenticated() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return email;
-            }
-
-            @Override
-            public void setAuthenticated(boolean b) throws IllegalArgumentException {
-
-            }
-
-        });
-
         given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
 
         // when
@@ -605,44 +455,6 @@ public class UserServiceImplTest {
         // given
 
         validUser.setIsVerified(false);
-
-        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return null;
-            }
-
-            @Override
-            public Object getCredentials() {
-                return null;
-            }
-
-            @Override
-            public Object getDetails() {
-                return null;
-            }
-
-            @Override
-            public Object getPrincipal() {
-                return null;
-            }
-
-            @Override
-            public boolean isAuthenticated() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return email;
-            }
-
-            @Override
-            public void setAuthenticated(boolean b) throws IllegalArgumentException {
-
-            }
-
-        });
 
         given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
 
