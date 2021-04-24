@@ -39,6 +39,7 @@ public class UserServiceImplTest {
 
     private Faker faker;
 
+    private Long id;
     private String email;
     private String password;
     private String firstName;
@@ -53,6 +54,7 @@ public class UserServiceImplTest {
 
         faker = new Faker();
 
+        id = faker.random().nextLong();
         email = faker.internet().emailAddress();
         password = faker.internet().password(6, 52);
         firstName = faker.name().firstName();
@@ -67,6 +69,7 @@ public class UserServiceImplTest {
         isVerified = true;
 
         validUser = new User();
+        validUser.setId(id);
         validUser.setEmail(email);
         validUser.setFirstName(firstName);
         validUser.setLastName(lastName);
@@ -130,7 +133,6 @@ public class UserServiceImplTest {
 
     }
 
-
     @Test
     void Should_FindUser_Given_RegisteredEmail() {
 
@@ -158,6 +160,30 @@ public class UserServiceImplTest {
         // then
         BDDMockito.then(userRepository).should(times(1)).findByEmail(email);
         then(actual).usingRecursiveComparison().isEqualTo(null);
+
+    }
+
+    @Test
+    void Should_SaveUser_Given_ValidUser() {
+
+        // given
+        given(userRepository.save(validUser)).willReturn(validUser);
+
+        // when
+        UserResponse actual = userService.saveUser(validUser);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).save(validUser);
+        then(actual).usingRecursiveComparison().isEqualTo(validUserResponse);
+
+    }
+
+    @Test
+    void ShouldNot_SaveUser_Given_NullUser() {
+
+        // when, then
+        assertThatThrownBy(() -> userService.saveUser(null)).isInstanceOf(InvalidArgumentException.class)
+                .hasMessage("Null user");
 
     }
 
