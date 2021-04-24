@@ -1,7 +1,9 @@
 package com.commerce.service;
 
 import com.commerce.dao.UserRepository;
+import com.commerce.error.exception.AccessDeniedException;
 import com.commerce.error.exception.InvalidArgumentException;
+import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.user.UserResponseMapper;
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.PasswordResetRequest;
@@ -10,6 +12,7 @@ import com.commerce.model.request.user.UpdateUserAddressRequest;
 import com.commerce.model.request.user.UpdateUserRequest;
 import com.commerce.model.response.user.UserResponse;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +28,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getCurrentUser() {
-        // TODO Auto-generated method stub
-        return null;
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (email == null) {
+            throw new AccessDeniedException("Invalid access");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return userResponseMapper.apply(user);
+
     }
 
     @Override
