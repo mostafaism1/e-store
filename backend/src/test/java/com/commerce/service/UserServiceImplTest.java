@@ -15,6 +15,7 @@ import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.model.common.Address;
 import com.commerce.model.dto.AddressDTO;
 import com.commerce.model.entity.User;
+import com.commerce.model.request.user.PasswordResetRequest;
 import com.commerce.model.request.user.RegisterRequest;
 import com.commerce.model.request.user.UpdateUserAddressRequest;
 import com.commerce.model.request.user.UpdateUserRequest;
@@ -449,6 +450,67 @@ public class UserServiceImplTest {
         // then
         BDDMockito.then(userRepository).should(times(1)).save(validUser);
         then(actual).usingRecursiveComparison().isEqualTo(validUser);
+
+    }
+
+    @Test
+    void Should_ResetPassword() {
+
+        // given
+        String updatedPassword = faker.internet().password(6, 52);
+        PasswordResetRequest passwordResetRequest = new PasswordResetRequest();
+        passwordResetRequest.setOldPassword(password);
+        passwordResetRequest.setPassword(updatedPassword);
+        passwordResetRequest.setPasswordConfirmation(updatedPassword);
+
+        validUser.setPassword(updatedPassword);
+
+        SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
+
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return null;
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public String getName() {
+                return email;
+            }
+
+            @Override
+            public void setAuthenticated(boolean b) throws IllegalArgumentException {
+
+            }
+
+        });
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(validUser));
+        given(userRepository.save(validUser)).willReturn(validUser);
+
+        // when
+        userService.resetPassword(passwordResetRequest);
+
+        // then
+        BDDMockito.then(userRepository).should(times(1)).save(validUser);
 
     }
 
