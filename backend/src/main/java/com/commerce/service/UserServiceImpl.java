@@ -31,8 +31,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse saveUser(User user) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (user == null) {
+            throw new InvalidArgumentException("Null user");
+        }
+
+        User savedUser = userRepository.save(user);
+        return userResponseMapper.apply(savedUser);
+
     }
 
     @Override
