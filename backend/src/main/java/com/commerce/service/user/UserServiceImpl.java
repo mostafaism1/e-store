@@ -1,4 +1,4 @@
-package com.commerce.service;
+package com.commerce.service.user;
 
 import com.commerce.dao.UserRepository;
 import com.commerce.error.exception.AccessDeniedException;

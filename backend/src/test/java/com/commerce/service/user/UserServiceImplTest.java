@@ -1,4 +1,4 @@
-package com.commerce.service;
+package com.commerce.service.user;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.then;

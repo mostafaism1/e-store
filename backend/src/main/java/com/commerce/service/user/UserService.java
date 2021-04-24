@@ -1,4 +1,4 @@
-package com.commerce.service;
+package com.commerce.service.user;
 
 import com.commerce.model.entity.User;
 import com.commerce.model.request.user.PasswordResetRequest;
