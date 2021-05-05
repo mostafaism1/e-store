@@ -8,7 +8,10 @@ import javax.persistence.OneToOne;
 
 import com.commerce.model.entity.User;
 
+import lombok.Data;
+
 @Embeddable
+@Data
 public class Token {
 
 	private String token;
