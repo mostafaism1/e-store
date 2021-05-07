@@ -4,10 +4,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.commerce.dao.PasswordForgotTokenRepository;
+import com.commerce.dao.UserRepository;
 import com.commerce.dao.VerificationTokenRepository;
 import com.commerce.model.common.Token;
+import com.commerce.model.entity.PasswordForgotToken;
 import com.commerce.model.entity.User;
 import com.commerce.model.entity.VerificationToken;
+import com.commerce.model.event.OnPasswordForgotRequestEvent;
 import com.commerce.model.event.OnRegistrationCompleteEvent;
 import com.commerce.model.request.user.PasswordForgotValidateRequest;
 
@@ -24,6 +28,8 @@ public class TokenServiceImpl implements TokenService {
 
     private final VerificationTokenRepository verificationTokenRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRepository userRepository;
+    private final PasswordForgotTokenRepository passwordForgotTokenRepository;
 
     @Override
     public void createEmailConfirmToken(User user) {
@@ -45,7 +51,20 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void createPasswordResetToken(String email) {
-        // TODO Auto-generated method stub
+
+        User user = userRepository.findByEmail(email).get();
+        if (user == null) {
+            return;
+        }
+
+        PasswordForgotToken passwordForgotToken = passwordForgotTokenRepository.findByTokenUser(user)
+                .orElse(new PasswordForgotToken());
+
+        passwordForgotToken.setToken(generateTokenForUser(user));
+
+        passwordForgotTokenRepository.save(passwordForgotToken);
+
+        eventPublisher.publishEvent(new OnPasswordForgotRequestEvent(user, passwordForgotToken.getToken().getToken()));
 
     }
 
