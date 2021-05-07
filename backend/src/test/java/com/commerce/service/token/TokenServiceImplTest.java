@@ -3,7 +3,7 @@ package com.commerce.service.token;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.util.Optional;
 
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -71,14 +72,17 @@ class TokenServiceImplTest {
                 ArgumentCaptor<OnRegistrationCompleteEvent> onRegistrationCompleteEventArgumentCaptor = ArgumentCaptor
                                 .forClass(OnRegistrationCompleteEvent.class);
 
-                given(verificationTokenRepository.save(any(VerificationToken.class))).willReturn(new VerificationToken());
+                given(verificationTokenRepository.save(any(VerificationToken.class)))
+                                .willReturn(new VerificationToken());
 
                 // when
                 tokenService.createEmailConfirmToken(user);
 
                 // then
-                verify(verificationTokenRepository).save(verificationTokenArgumentCaptor.capture());
-                verify(eventPublisher).publishEvent(onRegistrationCompleteEventArgumentCaptor.capture());
+                BDDMockito.then(verificationTokenRepository).should(times(1))
+                                .save(verificationTokenArgumentCaptor.capture());
+                BDDMockito.then(eventPublisher).should(times(1))
+                                .publishEvent(onRegistrationCompleteEventArgumentCaptor.capture());
 
                 then(user).isEqualTo(onRegistrationCompleteEventArgumentCaptor.getValue().getUser());
                 then(verificationTokenArgumentCaptor.getValue().getToken().getToken())
@@ -105,8 +109,10 @@ class TokenServiceImplTest {
                 tokenService.createPasswordResetToken(email);
 
                 // then
-                verify(passwordForgotTokenRepository).save(passwordForgotTokenArgumentCaptor.capture());
-                verify(eventPublisher).publishEvent(onPasswordForgotRequestEventArgumentCaptor.capture());
+                BDDMockito.then(passwordForgotTokenRepository).should(times(1))
+                                .save(passwordForgotTokenArgumentCaptor.capture());
+                BDDMockito.then(eventPublisher).should(times(1))
+                                .publishEvent(onPasswordForgotRequestEventArgumentCaptor.capture());
 
                 then(user).isEqualTo(onPasswordForgotRequestEventArgumentCaptor.getValue().getUser());
                 then(passwordForgotTokenArgumentCaptor.getValue().getToken().getToken())
@@ -134,8 +140,10 @@ class TokenServiceImplTest {
                 tokenService.createPasswordResetToken(email);
 
                 // then
-                verify(passwordForgotTokenRepository).save(passwordForgotTokenArgumentCaptor.capture());
-                verify(eventPublisher).publishEvent(onPasswordForgotRequestEventArgumentCaptor.capture());
+                BDDMockito.then(passwordForgotTokenRepository).should(times(1))
+                                .save(passwordForgotTokenArgumentCaptor.capture());
+                BDDMockito.then(eventPublisher).should(times(1))
+                                .publishEvent(onPasswordForgotRequestEventArgumentCaptor.capture());
 
                 then(user).isEqualTo(onPasswordForgotRequestEventArgumentCaptor.getValue().getUser());
                 then(passwordForgotTokenArgumentCaptor.getValue().getToken().getToken())
