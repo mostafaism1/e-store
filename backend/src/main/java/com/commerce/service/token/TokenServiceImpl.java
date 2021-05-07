@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.commerce.dao.PasswordForgotTokenRepository;
 import com.commerce.dao.UserRepository;
 import com.commerce.dao.VerificationTokenRepository;
+import com.commerce.error.exception.InvalidArgumentException;
+import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.model.common.Token;
 import com.commerce.model.entity.PasswordForgotToken;
 import com.commerce.model.entity.User;
@@ -45,7 +47,19 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void validateEmail(String token) {
-        // TODO Auto-generated method stub
+
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Null verification token"));
+
+        if (isTokenExpired(verificationToken.getToken())) {
+            throw new InvalidArgumentException("Token is expired");
+        }
+
+        User user = verificationToken.getToken().getUser();
+        user.setIsVerified(true);
+        userRepository.save(user);
+
+        verificationTokenRepository.delete(verificationToken);
 
     }
 
@@ -98,6 +112,10 @@ public class TokenServiceImpl implements TokenService {
 
     private String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    private boolean isTokenExpired(Token token) {
+        return token.getExpiresAt().isBefore(Instant.now());
     }
 
 }
