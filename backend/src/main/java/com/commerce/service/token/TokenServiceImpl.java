@@ -28,7 +28,8 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public void createEmailConfirmToken(User user) {
 
-        VerificationToken verificationToken = generateTokenForUser(user);
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(generateTokenForUser(user));
 
         verificationTokenRepository.save(verificationToken);
 
@@ -64,15 +65,16 @@ public class TokenServiceImpl implements TokenService {
         return Instant.now().plus(EXPIRES_AFTER);
     }
 
-    private VerificationToken generateTokenForUser(User user) {
+    private Token generateTokenForUser(User user) {
+
         String tokenString = generateToken();
-        VerificationToken verificationToken = new VerificationToken();
         Token token = new Token();
         token.setToken(tokenString);
         token.setUser(user);
         token.setExpiresAt(calculateExpiryDate());
-        verificationToken.setToken(token);
-        return verificationToken;
+
+        return token;
+
     }
 
     private String generateToken() {
