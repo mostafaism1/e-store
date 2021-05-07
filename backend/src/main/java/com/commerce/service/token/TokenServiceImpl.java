@@ -84,7 +84,13 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void validateForgotPasswordConfirm(String token) {
-        // TODO Auto-generated method stub
+
+        PasswordForgotToken passwordForgotToken = passwordForgotTokenRepository.findByTokenToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+
+        if (isTokenExpired(passwordForgotToken.getToken())) {
+            throw new InvalidArgumentException("Token is expired");
+        }
 
     }
 
