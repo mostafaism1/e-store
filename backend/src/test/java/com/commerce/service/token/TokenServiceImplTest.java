@@ -1,15 +1,21 @@
 package com.commerce.service.token;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 
 import com.commerce.dao.PasswordForgotTokenRepository;
 import com.commerce.dao.UserRepository;
 import com.commerce.dao.VerificationTokenRepository;
+import com.commerce.error.exception.InvalidArgumentException;
+import com.commerce.error.exception.ResourceNotFoundException;
+import com.commerce.model.common.Token;
 import com.commerce.model.entity.PasswordForgotToken;
 import com.commerce.model.entity.User;
 import com.commerce.model.entity.VerificationToken;
@@ -149,5 +155,69 @@ class TokenServiceImplTest {
                 then(passwordForgotTokenArgumentCaptor.getValue().getToken().getToken())
                                 .isEqualTo(onPasswordForgotRequestEventArgumentCaptor.getValue().getToken());
 
+        }
+
+        @Test
+        void it_should_validate_email_by_token() {
+
+                // given
+                String tokenString = faker.random().hex();
+                VerificationToken verificationToken = new VerificationToken();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                verificationToken.setToken(token);
+
+                ArgumentCaptor<VerificationToken> verificationTokenArgumentCaptor = ArgumentCaptor
+                                .forClass(VerificationToken.class);
+                ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+
+                given(verificationTokenRepository.findByToken(tokenString)).willReturn(Optional.of(verificationToken));
+
+                // when
+                tokenService.validateEmail(tokenString);
+
+                // then
+                BDDMockito.then(verificationTokenRepository).should(times(1))
+                                .delete(verificationTokenArgumentCaptor.capture());
+                BDDMockito.then(userRepository).should(times(1)).save(userArgumentCaptor.capture());
+
+                then(verificationTokenArgumentCaptor.getValue()).isEqualTo(verificationToken);
+                then(userArgumentCaptor.getValue().getIsVerified()).isEqualTo(true);
+
+        }
+
+        @Test
+        void it_should_throw_exception_when_no_token_on_validate_email() {
+
+                // given
+                String tokenString = faker.random().hex();
+
+                given(verificationTokenRepository.findByToken(tokenString)).willReturn(Optional.empty());
+
+                // when, then
+                assertThatThrownBy(() -> tokenService.validateEmail(tokenString))
+                                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Null verification token");
+        }
+
+        @Test
+        void it_should_throw_exception_when_token_expired_on_validate_email() {
+
+                // given
+                String tokenString = faker.random().hex();
+                VerificationToken verificationToken = new VerificationToken();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                verificationToken.setToken(token);
+
+                given(verificationTokenRepository.findByToken(tokenString)).willReturn(Optional.of(verificationToken));
+
+                // when, then
+
+                assertThatThrownBy(() -> tokenService.validateEmail(tokenString))
+                                .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
         }
 }
