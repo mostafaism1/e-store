@@ -220,4 +220,59 @@ class TokenServiceImplTest {
                 assertThatThrownBy(() -> tokenService.validateEmail(tokenString))
                                 .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
         }
+
+        @Test
+        void it_should_validate_forgot_password_confirm() {
+
+                // given
+                String tokenString = faker.random().hex();
+                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                passwordForgotToken.setToken(token);
+
+                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                                .willReturn(Optional.of(passwordForgotToken));
+
+                // when
+                tokenService.validateForgotPasswordConfirm(tokenString);
+
+                // then
+                BDDMockito.then(passwordForgotTokenRepository).should(times(1)).findByTokenToken(tokenString);
+        }
+
+        @Test
+        void it_should_throw_exception_when_no_token_on_validate_forgot_password_confirm() {
+
+                // given
+                String tokenString = faker.random().hex();
+
+                given(passwordForgotTokenRepository.findByTokenToken(tokenString)).willReturn(Optional.empty());
+
+                // when, then
+                assertThatThrownBy(() -> tokenService.validateForgotPasswordConfirm(tokenString))
+                                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Token not found");
+        }
+
+        @Test
+        void it_should_throw_exception_when_token_expired_on_validate_forgot_password_confirm() {
+
+                // given
+                String tokenString = faker.random().hex();
+                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                passwordForgotToken.setToken(token);
+
+                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                                .willReturn(Optional.of(passwordForgotToken));
+
+                // when, then
+                assertThatThrownBy(() -> tokenService.validateForgotPasswordConfirm(tokenString))
+                                .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
+        }
 }
