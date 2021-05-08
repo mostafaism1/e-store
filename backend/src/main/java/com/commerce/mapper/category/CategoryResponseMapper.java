@@ -6,6 +6,9 @@ import com.commerce.model.dto.CategoryDTO;
 import com.commerce.model.entity.ProductCategory;
 import com.commerce.model.response.category.ProductCategoryResponse;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class CategoryResponseMapper implements Function<ProductCategory, ProductCategoryResponse> {
 
     @Override
