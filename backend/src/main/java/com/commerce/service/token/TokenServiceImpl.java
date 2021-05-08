@@ -18,6 +18,7 @@ import com.commerce.model.event.OnRegistrationCompleteEvent;
 import com.commerce.model.request.user.PasswordForgotValidateRequest;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
@@ -32,6 +33,7 @@ public class TokenServiceImpl implements TokenService {
     private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
     private final PasswordForgotTokenRepository passwordForgotTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void createEmailConfirmToken(User user) {
@@ -96,7 +98,21 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void validateForgotPassword(PasswordForgotValidateRequest passwordForgotValidateRequest) {
-        // TODO Auto-generated method stub
+
+        PasswordForgotToken passwordForgotToken = passwordForgotTokenRepository
+                .findByTokenToken(passwordForgotValidateRequest.getToken())
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+
+        if (isTokenExpired(passwordForgotToken.getToken())) {
+            throw new InvalidArgumentException("Token is expired");
+        }
+
+        User user = passwordForgotToken.getToken().getUser();
+        passwordEncoder.matches(passwordForgotValidateRequest.getPassword(), user.getPassword());
+        user.setPassword(passwordEncoder.encode(passwordForgotValidateRequest.getPassword()));
+        userRepository.save(user);
+
+        passwordForgotTokenRepository.delete(passwordForgotToken);
 
     }
 
