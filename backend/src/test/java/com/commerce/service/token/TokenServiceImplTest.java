@@ -64,21 +64,38 @@ class TokenServiceImplTest {
 
         private Faker faker;
 
+        private String email;
+
+        private ArgumentCaptor<VerificationToken> verificationTokenArgumentCaptor;
+
+        private ArgumentCaptor<OnRegistrationCompleteEvent> onRegistrationCompleteEventArgumentCaptor;
+
+        private ArgumentCaptor<PasswordForgotToken> passwordForgotTokenArgumentCaptor;
+
+        private ArgumentCaptor<OnPasswordForgotRequestEvent> onPasswordForgotRequestEventArgumentCaptor;
+
+        private ArgumentCaptor<User> userArgumentCaptor;
+
         @BeforeEach
         public void setUp() {
+
                 user = new User();
                 faker = new Faker();
+                email = faker.internet().emailAddress();
+
+                verificationTokenArgumentCaptor = ArgumentCaptor.forClass(VerificationToken.class);
+                onRegistrationCompleteEventArgumentCaptor = ArgumentCaptor.forClass(OnRegistrationCompleteEvent.class);
+                passwordForgotTokenArgumentCaptor = ArgumentCaptor.forClass(PasswordForgotToken.class);
+                onPasswordForgotRequestEventArgumentCaptor = ArgumentCaptor
+                                .forClass(OnPasswordForgotRequestEvent.class);
+                userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+
         }
 
         @Test
         void it_should_create_email_confirm_token() {
 
                 // given
-                ArgumentCaptor<VerificationToken> verificationTokenArgumentCaptor = ArgumentCaptor
-                                .forClass(VerificationToken.class);
-                ArgumentCaptor<OnRegistrationCompleteEvent> onRegistrationCompleteEventArgumentCaptor = ArgumentCaptor
-                                .forClass(OnRegistrationCompleteEvent.class);
-
                 given(verificationTokenRepository.save(any(VerificationToken.class)))
                                 .willReturn(new VerificationToken());
 
@@ -101,12 +118,6 @@ class TokenServiceImplTest {
         void it_should_create_password_reset_token_if_it_does_not_exist() {
 
                 // given
-                String email = faker.internet().emailAddress();
-                ArgumentCaptor<PasswordForgotToken> passwordForgotTokenArgumentCaptor = ArgumentCaptor
-                                .forClass(PasswordForgotToken.class);
-                ArgumentCaptor<OnPasswordForgotRequestEvent> onPasswordForgotRequestEventArgumentCaptor = ArgumentCaptor
-                                .forClass(OnPasswordForgotRequestEvent.class);
-
                 given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
                 given(passwordForgotTokenRepository.findByTokenUser(user)).willReturn(Optional.empty());
                 given(passwordForgotTokenRepository.save(any(PasswordForgotToken.class)))
@@ -131,12 +142,6 @@ class TokenServiceImplTest {
         void it_should_create_password_reset_token_if_it_already_exists() {
 
                 // given
-                String email = faker.internet().emailAddress();
-                ArgumentCaptor<PasswordForgotToken> passwordForgotTokenArgumentCaptor = ArgumentCaptor
-                                .forClass(PasswordForgotToken.class);
-                ArgumentCaptor<OnPasswordForgotRequestEvent> onPasswordForgotRequestEventArgumentCaptor = ArgumentCaptor
-                                .forClass(OnPasswordForgotRequestEvent.class);
-
                 given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
                 given(passwordForgotTokenRepository.findByTokenUser(user))
                                 .willReturn(Optional.of(new PasswordForgotToken()));
@@ -162,22 +167,14 @@ class TokenServiceImplTest {
         void it_should_validate_email_by_token() {
 
                 // given
-                String tokenString = faker.random().hex();
-                VerificationToken verificationToken = new VerificationToken();
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
-                verificationToken.setToken(token);
+                Token token = generateUnexpiredToken();
+                VerificationToken verificationToken = createVerificationToken(token);
 
-                ArgumentCaptor<VerificationToken> verificationTokenArgumentCaptor = ArgumentCaptor
-                                .forClass(VerificationToken.class);
-                ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-
-                given(verificationTokenRepository.findByToken(tokenString)).willReturn(Optional.of(verificationToken));
+                given(verificationTokenRepository.findByToken(token.getToken()))
+                                .willReturn(Optional.of(verificationToken));
 
                 // when
-                tokenService.validateEmail(tokenString);
+                tokenService.validateEmail(token.getToken());
 
                 // then
                 BDDMockito.then(verificationTokenRepository).should(times(1))
@@ -206,19 +203,15 @@ class TokenServiceImplTest {
         void it_should_throw_exception_when_token_expired_on_validate_email() {
 
                 // given
-                String tokenString = faker.random().hex();
-                VerificationToken verificationToken = new VerificationToken();
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
-                verificationToken.setToken(token);
+                Token token = generateExpiredToken();
+                VerificationToken verificationToken = createVerificationToken(token);
 
-                given(verificationTokenRepository.findByToken(tokenString)).willReturn(Optional.of(verificationToken));
+                given(verificationTokenRepository.findByToken(token.getToken()))
+                                .willReturn(Optional.of(verificationToken));
 
                 // when, then
 
-                assertThatThrownBy(() -> tokenService.validateEmail(tokenString))
+                assertThatThrownBy(() -> tokenService.validateEmail(token.getToken()))
                                 .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
         }
 
@@ -226,22 +219,17 @@ class TokenServiceImplTest {
         void it_should_validate_forgot_password_confirm() {
 
                 // given
-                String tokenString = faker.random().hex();
-                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
-                passwordForgotToken.setToken(token);
+                Token token = generateUnexpiredToken();
+                PasswordForgotToken passwordForgotToken = createPasswordForgotToken(token);
 
-                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                given(passwordForgotTokenRepository.findByTokenToken(token.getToken()))
                                 .willReturn(Optional.of(passwordForgotToken));
 
                 // when
-                tokenService.validateForgotPasswordConfirm(tokenString);
+                tokenService.validateForgotPasswordConfirm(token.getToken());
 
                 // then
-                BDDMockito.then(passwordForgotTokenRepository).should(times(1)).findByTokenToken(tokenString);
+                BDDMockito.then(passwordForgotTokenRepository).should(times(1)).findByTokenToken(token.getToken());
         }
 
         @Test
@@ -261,19 +249,14 @@ class TokenServiceImplTest {
         void it_should_throw_exception_when_token_expired_on_validate_forgot_password_confirm() {
 
                 // given
-                String tokenString = faker.random().hex();
-                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
-                passwordForgotToken.setToken(token);
+                Token token = generateExpiredToken();
+                PasswordForgotToken passwordForgotToken = createPasswordForgotToken(token);
 
-                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                given(passwordForgotTokenRepository.findByTokenToken(token.getToken()))
                                 .willReturn(Optional.of(passwordForgotToken));
 
                 // when, then
-                assertThatThrownBy(() -> tokenService.validateForgotPasswordConfirm(tokenString))
+                assertThatThrownBy(() -> tokenService.validateForgotPasswordConfirm(token.getToken()))
                                 .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
         }
 
@@ -281,27 +264,13 @@ class TokenServiceImplTest {
         void it_should_validate_forgot_password() {
 
                 // given
-                String tokenString = faker.random().hex();
+                Token token = generateUnexpiredToken();
                 String newPassword = faker.internet().password();
+                PasswordForgotValidateRequest passwordForgotValidateRequest = createPasswordForgotValidateRequest(token,
+                                newPassword);
+                PasswordForgotToken passwordForgotToken = createPasswordForgotToken(token);
 
-                PasswordForgotValidateRequest passwordForgotValidateRequest = new PasswordForgotValidateRequest();
-                passwordForgotValidateRequest.setToken(tokenString);
-                passwordForgotValidateRequest.setPassword(newPassword);
-                passwordForgotValidateRequest.setPasswordConfirmation(newPassword);
-
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
-
-                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
-                passwordForgotToken.setToken(token);
-
-                ArgumentCaptor<PasswordForgotToken> passwordForgotTokenArgumentCaptor = ArgumentCaptor
-                                .forClass(PasswordForgotToken.class);
-                ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-
-                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                given(passwordForgotTokenRepository.findByTokenToken(token.getToken()))
                                 .willReturn(Optional.of(passwordForgotToken));
                 given(passwordEncoder.matches(passwordForgotValidateRequest.getPassword(), user.getPassword()))
                                 .willReturn(false);
@@ -325,15 +294,12 @@ class TokenServiceImplTest {
         void it_should_throw_exception_when_no_token_on_validate_forgot_password() {
 
                 // given
-                String tokenString = faker.random().hex();
+                Token token = generateUnexpiredToken();
                 String newPassword = faker.internet().password();
+                PasswordForgotValidateRequest passwordForgotValidateRequest = createPasswordForgotValidateRequest(token,
+                                newPassword);
 
-                PasswordForgotValidateRequest passwordForgotValidateRequest = new PasswordForgotValidateRequest();
-                passwordForgotValidateRequest.setToken(tokenString);
-                passwordForgotValidateRequest.setPassword(newPassword);
-                passwordForgotValidateRequest.setPasswordConfirmation(newPassword);
-
-                given(passwordForgotTokenRepository.findByTokenToken(tokenString)).willReturn(Optional.empty());
+                given(passwordForgotTokenRepository.findByTokenToken(token.getToken())).willReturn(Optional.empty());
 
                 // when, then
                 assertThatThrownBy(() -> tokenService.validateForgotPassword(passwordForgotValidateRequest))
@@ -344,28 +310,56 @@ class TokenServiceImplTest {
         void it_should_throw_exception_when_token_expired_on_validate_forgot_password() {
 
                 // given
-                String tokenString = faker.random().hex();
+                Token token = generateExpiredToken();
                 String newPassword = faker.internet().password();
+                PasswordForgotValidateRequest passwordForgotValidateRequest = createPasswordForgotValidateRequest(token,
+                                newPassword);
+                PasswordForgotToken passwordForgotToken = createPasswordForgotToken(token);
 
-                PasswordForgotValidateRequest passwordForgotValidateRequest = new PasswordForgotValidateRequest();
-                passwordForgotValidateRequest.setToken(tokenString);
-                passwordForgotValidateRequest.setPassword(newPassword);
-                passwordForgotValidateRequest.setPasswordConfirmation(newPassword);
-
-                Token token = new Token();
-                token.setToken(tokenString);
-                token.setUser(user);
-                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
-
-                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
-                passwordForgotToken.setToken(token);
-
-                given(passwordForgotTokenRepository.findByTokenToken(tokenString))
+                given(passwordForgotTokenRepository.findByTokenToken(token.getToken()))
                                 .willReturn(Optional.of(passwordForgotToken));
 
                 // when, then
                 assertThatThrownBy(() -> tokenService.validateForgotPassword(passwordForgotValidateRequest))
                                 .isInstanceOf(InvalidArgumentException.class).hasMessage("Token is expired");
+        }
+
+        private PasswordForgotToken createPasswordForgotToken(Token token) {
+                PasswordForgotToken passwordForgotToken = new PasswordForgotToken();
+                passwordForgotToken.setToken(token);
+                return passwordForgotToken;
+        }
+
+        private PasswordForgotValidateRequest createPasswordForgotValidateRequest(Token token, String newPassword) {
+                PasswordForgotValidateRequest passwordForgotValidateRequest = new PasswordForgotValidateRequest();
+                passwordForgotValidateRequest.setToken(token.getToken());
+                passwordForgotValidateRequest.setPassword(newPassword);
+                passwordForgotValidateRequest.setPasswordConfirmation(newPassword);
+                return passwordForgotValidateRequest;
+        }
+
+        private Token generateUnexpiredToken() {
+                String tokenString = faker.random().hex();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().plus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                return token;
+        }
+
+        private Token generateExpiredToken() {
+                String tokenString = faker.random().hex();
+                Token token = new Token();
+                token.setToken(tokenString);
+                token.setUser(user);
+                token.setExpiresAt(Instant.now().minus(Duration.ofHours(faker.number().randomDigitNotZero())));
+                return token;
+        }
+
+        private VerificationToken createVerificationToken(Token token) {
+                VerificationToken verificationToken = new VerificationToken();
+                verificationToken.setToken(token);
+                return verificationToken;
         }
 
 }
