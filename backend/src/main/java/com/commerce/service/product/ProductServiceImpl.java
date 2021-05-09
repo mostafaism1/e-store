@@ -1,15 +1,25 @@
 package com.commerce.service.product;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.commerce.dao.ProductRepository;
+import com.commerce.dao.ProductVariantRepository;
+import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.product.ProductDetailsResponseMapper;
+import com.commerce.mapper.product.ProductVariantResponseMapper;
 import com.commerce.model.entity.Product;
+import com.commerce.model.entity.ProductVariant;
 import com.commerce.model.response.product.ProductDetailsResponse;
 import com.commerce.model.response.product.ProductResponse;
 import com.commerce.model.response.product.ProductVariantResponse;
+import com.commerce.model.specs.ProductVariantSpecs;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +29,9 @@ import lombok.AllArgsConstructor;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final ProductDetailsResponseMapper productDetailsResponseMapper;
+    private final ProductVariantResponseMapper productVariantResponseMapper;
 
     @Override
     public ProductDetailsResponse findByUrl(String url) {
@@ -34,8 +46,27 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductVariantResponse> getAll(Integer page, Integer size, String sort, String category,
             Double minPrice, Double maxPrice, String color) {
-        // TODO Auto-generated method stub
-        return null;
+
+        PageRequest pageRequest;
+        if (sort != null && !sort.isBlank()) {
+            Sort sortRequest = getSort(sort);
+
+            if (sortRequest == null) {
+                throw new InvalidArgumentException("Invalid sort parameter");
+            }
+            pageRequest = PageRequest.of(page, size, sortRequest);
+        } else {
+            pageRequest = PageRequest.of(page, size);
+        }
+
+        Specification<ProductVariant> combinations = Specification.where(ProductVariantSpecs.withColor(color))
+                .and(ProductVariantSpecs.withCategory(category)).and(ProductVariantSpecs.minPrice(minPrice))
+                .and(ProductVariantSpecs.maxPrice(maxPrice));
+
+        Page<ProductVariant> productVariants = productVariantRepository.findAll(combinations, pageRequest);
+
+        return productVariants.stream().map(productVariantResponseMapper).collect(Collectors.toList());
+
     }
 
     @Override
@@ -72,6 +103,17 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> searchProductDisplay(String keyword, Integer page, Integer size) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    private Sort getSort(String sort) {
+        switch (sort) {
+            case "lowest":
+                return Sort.by(Sort.Direction.ASC, "price");
+            case "highest":
+                return Sort.by(Sort.Direction.DESC, "price");
+            default:
+                return null;
+        }
     }
 
 }
