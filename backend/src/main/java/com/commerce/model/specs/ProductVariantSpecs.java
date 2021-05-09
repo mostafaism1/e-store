@@ -24,7 +24,7 @@ public class ProductVariantSpecs {
         };
     }
 
-    public static Specification<ProductVariant> maxPrice(Float price) {
+    public static Specification<ProductVariant> maxPrice(Double price) {
         return (root, query, cb) -> {
             if (price == null) {
                 return cb.isTrue(cb.literal(true));
@@ -33,7 +33,7 @@ public class ProductVariantSpecs {
         };
     }
 
-    public static Specification<ProductVariant> minPrice(Float price) {
+    public static Specification<ProductVariant> minPrice(Double price) {
         return (root, query, cb) -> {
             if (price == null) {
                 return cb.isTrue(cb.literal(true));
