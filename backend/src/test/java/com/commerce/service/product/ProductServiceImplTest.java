@@ -172,4 +172,25 @@ public class ProductServiceImplTest {
                 .isInstanceOf(InvalidArgumentException.class).hasMessage("Invalid sort parameter");
     }
 
+    @Test
+    void it_should_get_all_product_variant_count() {
+
+        // given
+        String category = faker.lorem().word();
+        Double minPrice = (double) faker.number().randomNumber();
+        Double maxPrice = minPrice + faker.number().randomNumber();
+        String color = faker.color().name();
+
+        Long expected = faker.number().randomNumber();
+
+        given(productVariantRepository.count(any(Specification.class))).willReturn(expected);
+
+        // when
+        Long actual = productServiceImpl.getAllCount(category, minPrice, maxPrice, color);
+
+        // then
+        then(actual).isEqualTo(expected);
+
+    }
+
 }
