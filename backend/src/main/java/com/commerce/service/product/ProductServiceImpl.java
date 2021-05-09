@@ -8,6 +8,7 @@ import com.commerce.dao.ProductVariantRepository;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.product.ProductDetailsResponseMapper;
+import com.commerce.mapper.product.ProductResponseMapper;
 import com.commerce.mapper.product.ProductVariantResponseMapper;
 import com.commerce.model.entity.Product;
 import com.commerce.model.entity.ProductVariant;
@@ -32,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductVariantRepository productVariantRepository;
     private final ProductDetailsResponseMapper productDetailsResponseMapper;
     private final ProductVariantResponseMapper productVariantResponseMapper;
+    private final ProductResponseMapper productResponseMapper;
 
     @Override
     public ProductDetailsResponse findByUrl(String url) {
@@ -71,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Long getAllCount(String category, Double minPrice, Double maxPrice, String color) {
-        
+
         Specification<ProductVariant> combinations = Specification.where(ProductVariantSpecs.withColor(color))
                 .and(ProductVariantSpecs.withCategory(category)).and(ProductVariantSpecs.minPrice(minPrice))
                 .and(ProductVariantSpecs.maxPrice(maxPrice));
@@ -82,8 +84,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getRelatedProducts(String url) {
-        // TODO Auto-generated method stub
-        return null;
+
+        Product product = productRepository.findByUrl(url)
+                .orElseThrow(() -> new ResourceNotFoundException("Related products not found"));
+        List<Product> relatedProducts = productRepository
+                .findTop10ByProductCategoryAndIdIsNot(product.getProductCategory(), product.getId());
+
+        return relatedProducts.stream().map(productResponseMapper).collect(Collectors.toList());
+
     }
 
     @Override
