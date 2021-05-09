@@ -71,8 +71,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Long getAllCount(String category, Double minPrice, Double maxPrice, String color) {
-        // TODO Auto-generated method stub
-        return null;
+        
+        Specification<ProductVariant> combinations = Specification.where(ProductVariantSpecs.withColor(color))
+                .and(ProductVariantSpecs.withCategory(category)).and(ProductVariantSpecs.minPrice(minPrice))
+                .and(ProductVariantSpecs.maxPrice(maxPrice));
+
+        return productVariantRepository.count(combinations);
+
     }
 
     @Override
