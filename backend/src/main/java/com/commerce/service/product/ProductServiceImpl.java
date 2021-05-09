@@ -1,0 +1,66 @@
+package com.commerce.service.product;
+
+import java.util.List;
+
+import com.commerce.model.response.product.ProductDetailsResponse;
+import com.commerce.model.response.product.ProductResponse;
+import com.commerce.model.response.product.ProductVariantResponse;
+
+public class ProductServiceImpl implements ProductService {
+
+    @Override
+    public ProductDetailsResponse findByUrl(String url) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductVariantResponse> getAll(Integer page, Integer size, String sort, String category,
+            Double minPrice, Double maxPrice, String color) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Long getAllCount(String category, Double minPrice, Double maxPrice, String color) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProductVariantResponse findProductVariantById(Long id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductResponse> getRelatedProducts(String url) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductResponse> getNewlyAddedProducts() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductVariantResponse> getMostSelling() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductResponse> getInterested() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<ProductResponse> searchProductDisplay(String keyword, Integer page, Integer size) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+}
