@@ -15,8 +15,6 @@ public interface ProductService {
 
     Long getAllCount(String category, Double minPrice, Double maxPrice, String color);
 
-    ProductVariantResponse findProductVariantById(Long id);
-
     List<ProductResponse> getRelatedProducts(String url);
 
     List<ProductResponse> getNewlyAddedProducts();

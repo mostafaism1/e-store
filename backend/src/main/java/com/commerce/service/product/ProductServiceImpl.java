@@ -45,12 +45,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVariantResponse findProductVariantById(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public List<ProductResponse> getRelatedProducts(String url) {
         // TODO Auto-generated method stub
         return null;
