@@ -7,16 +7,21 @@ import static org.mockito.BDDMockito.given;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.commerce.dao.ProductRepository;
 import com.commerce.dao.ProductVariantRepository;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.product.ProductDetailsResponseMapper;
+import com.commerce.mapper.product.ProductResponseMapper;
 import com.commerce.mapper.product.ProductVariantResponseMapper;
 import com.commerce.model.entity.Product;
+import com.commerce.model.entity.ProductCategory;
 import com.commerce.model.entity.ProductVariant;
 import com.commerce.model.response.product.ProductDetailsResponse;
+import com.commerce.model.response.product.ProductResponse;
 import com.commerce.model.response.product.ProductVariantResponse;
 import com.github.javafaker.Faker;
 
@@ -48,6 +53,9 @@ public class ProductServiceImplTest {
 
     @Mock
     private ProductVariantResponseMapper productVariantResponseMapper;
+
+    @Mock
+    private ProductResponseMapper productResponseMapper;
 
     private Faker faker;
 
@@ -190,6 +198,47 @@ public class ProductServiceImplTest {
 
         // then
         then(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_get_all_related_products() {
+
+        // given
+        String url = faker.internet().domainSuffix();
+
+        Product product = new Product();
+        product.setId(faker.number().randomNumber());
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName(faker.lorem().word());
+        product.setProductCategory(productCategory);
+
+        List<Product> products = Stream.generate(Product::new).limit(faker.number().randomDigitNotZero())
+                .collect(Collectors.toList());
+
+        given(productRepository.findByUrl(url)).willReturn(Optional.of(product));
+        given(productRepository.findTop10ByProductCategoryAndIdIsNot(product.getProductCategory(), product.getId()))
+                .willReturn(products);
+
+        // when
+        List<ProductResponse> actual = productServiceImpl.getRelatedProducts(url);
+
+        // then
+        then(actual.size()).isEqualTo(products.size());
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_url_is_invalid_on_get_related_products() {
+
+        // given
+        String url = faker.internet().domainSuffix();
+
+        given(productRepository.findByUrl(url)).willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> productServiceImpl.getRelatedProducts(url))
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Related products not found");
 
     }
 
