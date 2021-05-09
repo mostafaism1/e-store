@@ -2,16 +2,33 @@ package com.commerce.service.product;
 
 import java.util.List;
 
+import com.commerce.dao.ProductRepository;
+import com.commerce.error.exception.ResourceNotFoundException;
+import com.commerce.mapper.product.ProductDetailsResponseMapper;
+import com.commerce.model.entity.Product;
 import com.commerce.model.response.product.ProductDetailsResponse;
 import com.commerce.model.response.product.ProductResponse;
 import com.commerce.model.response.product.ProductVariantResponse;
 
+import org.springframework.stereotype.Service;
+
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
+    private final ProductRepository productRepository;
+    private final ProductDetailsResponseMapper productDetailsResponseMapper;
 
     @Override
     public ProductDetailsResponse findByUrl(String url) {
-        // TODO Auto-generated method stub
-        return null;
+
+        Product product = productRepository.findByUrl(url)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with the url " + url));
+
+        return productDetailsResponseMapper.apply(product);
+
     }
 
     @Override
@@ -62,5 +79,5 @@ public class ProductServiceImpl implements ProductService {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
 }
