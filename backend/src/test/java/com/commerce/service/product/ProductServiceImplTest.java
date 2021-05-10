@@ -301,4 +301,33 @@ public class ProductServiceImplTest {
 
     }
 
+    @Test
+    void it_should_get_all_interested_products() {
+
+        // given
+        List<Product> products = Stream.generate(Product::new).limit(faker.number().randomDigitNotZero())
+                .collect(Collectors.toList());
+
+        given(productRepository.findTop10ByOrderByCreatedAtDesc()).willReturn(products);
+
+        // when
+        List<ProductResponse> productResponseList = productServiceImpl.getInterested();
+
+        // then
+        then(productResponseList.size()).isEqualTo(products.size());
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_all_interested_products_not_found() {
+
+        // given
+        given(productRepository.findTop10ByOrderByCreatedAtDesc()).willReturn(Collections.emptyList());
+
+        // when, then
+        assertThatThrownBy(() -> productServiceImpl.getInterested()).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Interested products not found");
+
+    }
+
 }
