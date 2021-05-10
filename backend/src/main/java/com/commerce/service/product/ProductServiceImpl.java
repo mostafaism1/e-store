@@ -119,8 +119,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getInterested() {
-        // TODO Auto-generated method stub
-        return null;
+        
+        List<Product> products = productRepository.findTop10ByOrderByCreatedAtDesc();
+        if (products.size() == 0) {
+            throw new ResourceNotFoundException("Interested products not found");
+        }
+
+        return products.stream().map(productResponseMapper).collect(Collectors.toList());
+
     }
 
     @Override
