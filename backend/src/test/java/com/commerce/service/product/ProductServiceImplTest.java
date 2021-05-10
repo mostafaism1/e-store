@@ -330,4 +330,44 @@ public class ProductServiceImplTest {
 
     }
 
+    @Test
+    void it_should_get_searched_products() {
+
+        // given
+        String keyword = faker.lorem().word();
+        Integer page = faker.number().randomDigitNotZero();
+        Integer size = faker.number().randomDigitNotZero();
+
+        List<Product> products = Stream.generate(Product::new).limit(faker.number().randomDigitNotZero())
+                .collect(Collectors.toList());
+
+        given(productRepository.findAllByNameContainingIgnoreCase(keyword, PageRequest.of(page, size)))
+                .willReturn(products);
+        given(productResponseMapper.apply(any(Product.class))).willReturn(new ProductResponse());
+
+        // when
+        List<ProductResponse> actual = productServiceImpl.searchProductDisplay(keyword, page, size);
+
+        // then
+        then(actual.size()).isEqualTo(products.size());
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_searched_products_with_null_page_and_null_size() {
+
+        // given
+        String keyword = faker.lorem().word();
+
+        // when, then
+        assertThatThrownBy(
+                () -> productServiceImpl.searchProductDisplay(keyword, null, faker.number().randomDigitNotZero()))
+                        .isInstanceOf(InvalidArgumentException.class).hasMessage("Page and size are required");
+
+        assertThatThrownBy(
+                () -> productServiceImpl.searchProductDisplay(keyword, faker.number().randomDigitNotZero(), null))
+                        .isInstanceOf(InvalidArgumentException.class).hasMessage("Page and size are required");
+
+    }
+
 }
