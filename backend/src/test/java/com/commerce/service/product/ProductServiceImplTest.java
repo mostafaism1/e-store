@@ -272,4 +272,33 @@ public class ProductServiceImplTest {
 
     }
 
+    @Test
+    void it_should_get_all_most_selling_products() {
+
+        // given
+        List<ProductVariant> productVariants = Stream.generate(ProductVariant::new)
+                .limit(faker.number().randomDigitNotZero()).collect(Collectors.toList());
+
+        given(productVariantRepository.findTop10ByOrderBySellCountDesc()).willReturn(productVariants);
+
+        // when
+        List<ProductVariantResponse> productVariantResponseList = productServiceImpl.getMostSelling();
+
+        // then
+        then(productVariantResponseList.size()).isEqualTo(productVariants.size());
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_all_most_selling_products_not_found() {
+
+        // given
+        given(productVariantRepository.findTop10ByOrderBySellCountDesc()).willReturn(Collections.emptyList());
+
+        // when, then
+        assertThatThrownBy(() -> productServiceImpl.getMostSelling()).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Most selling products not found");
+
+    }
+
 }
