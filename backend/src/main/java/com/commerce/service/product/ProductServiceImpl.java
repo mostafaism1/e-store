@@ -96,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getNewlyAddedProducts() {
-        
+
         List<Product> products = productRepository.findTop10ByOrderByCreatedAtDesc();
         if (products.size() == 0) {
             throw new ResourceNotFoundException("Newly added products not found");
@@ -107,8 +107,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductVariantResponse> getMostSelling() {
-        // TODO Auto-generated method stub
-        return null;
+
+        List<ProductVariant> mostSellingProducts = productVariantRepository.findTop10ByOrderBySellCountDesc();
+        if (mostSellingProducts.size() == 0) {
+            throw new ResourceNotFoundException("Most selling products not found");
+        }
+
+        return mostSellingProducts.stream().map(productVariantResponseMapper).collect(Collectors.toList());
+
     }
 
     @Override
