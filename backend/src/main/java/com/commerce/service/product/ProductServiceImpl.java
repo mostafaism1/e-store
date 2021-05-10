@@ -119,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getInterested() {
-        
+
         List<Product> products = productRepository.findTop10ByOrderByCreatedAtDesc();
         if (products.size() == 0) {
             throw new ResourceNotFoundException("Interested products not found");
@@ -131,8 +131,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> searchProductDisplay(String keyword, Integer page, Integer size) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (page == null || size == null) {
+            throw new InvalidArgumentException("Page and size are required");
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<Product> products = productRepository.findAllByNameContainingIgnoreCase(keyword, pageRequest);
+
+        return products.stream().map(productResponseMapper).collect(Collectors.toList());
+
     }
 
     private Sort getSort(String sort) {
