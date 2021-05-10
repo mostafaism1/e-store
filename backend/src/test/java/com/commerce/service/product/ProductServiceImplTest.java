@@ -5,6 +5,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -239,6 +240,35 @@ public class ProductServiceImplTest {
         // when, then
         assertThatThrownBy(() -> productServiceImpl.getRelatedProducts(url))
                 .isInstanceOf(ResourceNotFoundException.class).hasMessage("Related products not found");
+
+    }
+
+    @Test
+    void it_should_get_all_newly_added_products() {
+
+        // given
+        List<Product> products = Stream.generate(Product::new).limit(faker.number().randomDigitNotZero())
+                .collect(Collectors.toList());
+
+        given(productRepository.findTop10ByOrderByCreatedAtDesc()).willReturn(products);
+
+        // when
+        List<ProductResponse> actual = productServiceImpl.getNewlyAddedProducts();
+
+        // then
+        then(actual.size()).isEqualTo(products.size());
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_no_products_exist_on_get_newly_added_products() {
+
+        // given
+        given(productRepository.findTop10ByOrderByCreatedAtDesc()).willReturn(Collections.emptyList());
+
+        // when, then
+        assertThatThrownBy(() -> productServiceImpl.getNewlyAddedProducts())
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Newly added products not found");
 
     }
 
