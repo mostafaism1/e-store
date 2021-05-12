@@ -145,7 +145,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void saveCart(Cart cart) {
-        // TODO Auto-generated method stub
+
+        if (cart == null) {
+            throw new InvalidArgumentException("Cart is null");
+        }
+
+        cartRepository.save(cart);
 
     }
 
