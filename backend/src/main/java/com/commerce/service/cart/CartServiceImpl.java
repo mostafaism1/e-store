@@ -138,8 +138,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getCart() {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getCurrentUser();
+        return user.getCart();
     }
 
     @Override
