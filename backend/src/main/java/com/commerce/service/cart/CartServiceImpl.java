@@ -176,8 +176,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Double calculateTotalCartPrice(Cart cart) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (cart == null)
+            throw new InvalidArgumentException("Cart is null");
+
+        Double result = 0D;
+        for (CartItem cartItem : cart.getCartItems()) {
+            result += cartItem.getProductVariant().getPrice() * cartItem.getQuantity();
+        }
+
+        return result;
+
     }
 
     @Override
