@@ -150,7 +150,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void emptyCart() {
-        // TODO Auto-generated method stub
+
+        User user = getCurrentUser();
+        user.setCart(null);
 
     }
 
