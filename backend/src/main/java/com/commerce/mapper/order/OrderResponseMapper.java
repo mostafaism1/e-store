@@ -23,6 +23,10 @@ public class OrderResponseMapper implements Function<Order, OrderResponse> {
     @Override
     public OrderResponse apply(Order order) {
 
+        if (order == null) {
+            return null;
+        }
+
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getId());
         orderResponse.setBillingAddress(addressDTOMapper.apply(order.getBillingAddress()));

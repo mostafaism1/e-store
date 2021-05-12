@@ -19,6 +19,10 @@ public class UserResponseMapper implements Function<User, UserResponse> {
     @Override
     public UserResponse apply(User user) {
 
+        if (user == null) {
+            return null;
+        }
+
         UserResponse userResponse = new UserResponse();
 
         userResponse.setEmail(user.getEmail());

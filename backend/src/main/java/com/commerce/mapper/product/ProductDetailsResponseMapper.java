@@ -21,6 +21,10 @@ public class ProductDetailsResponseMapper implements Function<Product, ProductDe
     @Override
     public ProductDetailsResponse apply(Product product) {
 
+        if (product == null) {
+            return null;
+        }
+
         ProductDetailsResponse productDetailsResponse = new ProductDetailsResponse();
         productDetailsResponse.setName(product.getName());
         productDetailsResponse.setUrl(product.getUrl());

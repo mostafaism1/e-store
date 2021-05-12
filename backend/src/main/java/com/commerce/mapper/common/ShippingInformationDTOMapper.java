@@ -13,6 +13,10 @@ public class ShippingInformationDTOMapper implements Function<ShippingInformatio
     @Override
     public ShippingInformationDTO apply(ShippingInformation shippingInformation) {
 
+        if (shippingInformation == null) {
+            return null;
+        }
+
         return ShippingInformationDTO.builder().length(shippingInformation.getLength())
                 .width(shippingInformation.getWidth()).height(shippingInformation.getHeight())
                 .weight(shippingInformation.getWeight()).build();
