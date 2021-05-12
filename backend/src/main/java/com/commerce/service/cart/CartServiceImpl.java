@@ -189,8 +189,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Double calculateTotalPrice(Cart cart) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (cart == null)
+            throw new InvalidArgumentException("Cart is null");
+
+        return calculateTotalCartPrice(cart) + calculateTotalShippingPrice(cart);
+
     }
 
     @Override
