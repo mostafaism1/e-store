@@ -32,7 +32,6 @@ public class CartServiceImpl implements CartService {
     private final ProductVariantRepository productVariantRepository;
     private final CartRepository cartRepository;
     private final CartResponseMapper cartResponseMapper;
-    private Optional<CartItem> cartItem;
 
     @Override
     public CartResponse addToCart(Long id, Integer amount) {
@@ -59,11 +58,7 @@ public class CartServiceImpl implements CartService {
             cart.setCartItems(cartItems);
         }
 
-        if (productVariantHasEnoughStock(productVariant, cartItem.getQuantity() + amount)) {
-            cartItem.setQuantity(cartItem.getQuantity() + amount);
-        } else {
-            throw new InvalidArgumentException("Product does not have desired stock.");
-        }
+        incrementCartItem(cartItem, amount);
         
         cart = cartRepository.save(cart);
 
