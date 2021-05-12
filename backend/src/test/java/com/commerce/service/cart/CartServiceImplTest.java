@@ -524,4 +524,39 @@ public class CartServiceImplTest {
 
     }
 
+    @Test
+    void it_should_fetch_cart_when_cart_exists() {
+
+        // given
+        Cart cart = new Cart();
+        user.setCart(cart);
+        CartResponse expected = new CartResponse();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(cartResponseMapper.apply(cart)).willReturn(expected);
+
+        // when
+        CartResponse actual = cartService.fetchCart();
+
+        // then
+        then(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_return_null_cart_when_cart_does_not_exist() {
+
+        // given
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        CartResponse actual = cartService.fetchCart();
+
+        // then
+        then(actual).isEqualTo(null);
+
+    }
+    
 }
