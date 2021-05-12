@@ -363,4 +363,165 @@ public class CartServiceImplTest {
 
     }
 
+    @Test
+    void it_should_decrement_cart_item() {
+
+        // given
+        ArgumentCaptor<Cart> cartArgumentCaptor = ArgumentCaptor.forClass(Cart.class);
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(amount + 1);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        CartResponse expected = new CartResponse();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(cartResponseMapper.apply(cart)).willReturn(expected);
+
+        // when
+        CartResponse cartResponseResult = cartService.decrementCartItem(cartItemId, amount);
+
+        // then
+        BDDMockito.then(cartRepository).should().save(cartArgumentCaptor.capture());
+        then(cartArgumentCaptor.getValue().getCartItems().size()).isEqualTo(1);
+        then(cartArgumentCaptor.getValue().getCartItems().get(0).getId()).isEqualTo(cartItemId);
+        then(cartArgumentCaptor.getValue().getCartItems().get(0).getQuantity()).isEqualTo(1);
+
+        then(cartResponseResult).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_decrement_cart_item_and_empty_cart() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(amount);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        CartResponse cartResponseResult = cartService.decrementCartItem(cartItemId, amount);
+
+        // then
+        then(cartResponseResult).isEqualTo(null);
+
+    }
+
+    @Test
+    void it_should_decrement_cart_item_and_remove_cart_item() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(amount);
+        cartItems.add(cartItem);
+
+        CartItem cartItemOther = new CartItem();
+        cartItemOther.setId(cartItemId + 1);
+        cartItemOther.setProductVariant(productVariant);
+        cartItemOther.setQuantity(faker.number().randomDigitNotZero());
+        cartItems.add(cartItemOther);
+
+        cart.setCartItems(cartItems);
+        CartResponse expected = new CartResponse();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(cartResponseMapper.apply(cart)).willReturn(expected);
+
+        // when
+        CartResponse cartResponseResult = cartService.decrementCartItem(cartItemId, amount);
+
+        // then
+        then(cartResponseResult).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_decrement_and_no_cart_item() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId + 1);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.decrementCartItem(cartItemId, amount))
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("CartItem not found");
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_decrement_and_no_cart() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.decrementCartItem(cartItemId, amount))
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Empty cart");
+
+    }
+
 }
