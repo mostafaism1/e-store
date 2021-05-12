@@ -558,5 +558,126 @@ public class CartServiceImplTest {
         then(actual).isEqualTo(null);
 
     }
-    
+
+    @Test
+    void it_should_remove_from_cart() {
+
+        // given
+        ArgumentCaptor<Cart> cartArgumentCaptor = ArgumentCaptor.forClass(Cart.class);
+        Long cartItemId = faker.number().randomNumber();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(faker.number().randomDigitNotZero());
+        cartItems.add(cartItem);
+
+        CartItem cartItemOther = new CartItem();
+        cartItemOther.setId(cartItemId + 1);
+        cartItemOther.setProductVariant(productVariant);
+        cartItemOther.setQuantity(faker.number().randomDigitNotZero());
+        cartItems.add(cartItemOther);
+
+        cart.setCartItems(cartItems);
+
+        CartResponse expected = new CartResponse();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(cartResponseMapper.apply(cart)).willReturn(expected);
+
+        // when
+        CartResponse actual = cartService.removeFromCart(cartItemId);
+
+        // then
+        BDDMockito.then(cartRepository).should().save(cartArgumentCaptor.capture());
+        then(cartArgumentCaptor.getValue().getCartItems().size()).isEqualTo(1);
+        then(cartArgumentCaptor.getValue().getCartItems().get(0)).isEqualTo(cartItemOther);
+
+        then(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_remove_from_cart_and_empty_cart() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(faker.number().randomDigitNotZero());
+        cartItems.add(cartItem);
+
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        CartResponse actual = cartService.removeFromCart(cartItemId);
+
+        // then
+        then(actual).isEqualTo(null);
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_remove_from_cart_and_no_cart_item() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId + 1);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.removeFromCart(cartItemId)).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("CartItem not found");
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_remove_from_cart_and_no_cart() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.removeFromCart(cartItemId)).isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Empty cart");
+
+    }
+
 }
