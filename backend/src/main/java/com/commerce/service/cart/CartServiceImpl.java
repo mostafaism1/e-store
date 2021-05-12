@@ -59,7 +59,7 @@ public class CartServiceImpl implements CartService {
         }
 
         incrementCartItem(cartItem, amount);
-        
+
         cart = cartRepository.save(cart);
 
         return cartResponseMapper.apply(cart);
@@ -86,8 +86,20 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse decrementCartItem(Long cartItemId, Integer amount) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getCurrentUser();
+        Cart cart = user.getCart();
+        if (cart == null) {
+            throw new ResourceNotFoundException("Empty cart");
+        }
+
+        CartItem cartItem = getCartItem(cart, cartItemId);
+        decrementCartItem(cart, cartItem, amount);
+
+        cartRepository.save(cart);
+
+        return cartResponseMapper.apply(cart);
+
     }
 
     @Override
@@ -182,4 +194,35 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem not found"));
         return cartItem;
     }
+
+    private void decrementCartItem(Cart cart, CartItem cartItem, Integer amount) {
+        if (isPositive(cartItem.getQuantity() - amount)) {
+            cartItem.setQuantity(cartItem.getQuantity() - amount);
+        } else {
+            if (containsMoreThanOneItem(cart)) {
+                removeCartItem(cart, cartItem);
+            } else {
+                deleteCart(cart);
+            }
+        }
+    }
+
+    private boolean isPositive(Integer amount) {
+        return amount > 0;
+    }
+
+    private boolean containsMoreThanOneItem(Cart cart) {
+        return cart.getCartItems().size() > 1;
+    }
+
+    private void deleteCart(Cart cart) {
+        cart = null;
+    }
+
+    private void removeCartItem(Cart cart, CartItem cartItem) {
+        List<CartItem> cartItems = cart.getCartItems();
+        cartItems.remove(cartItem);
+        cart.setCartItems(cartItems);
+    }
+
 }
