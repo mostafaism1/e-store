@@ -14,6 +14,7 @@ import com.commerce.dao.ProductRepository;
 import com.commerce.dao.ProductVariantRepository;
 import com.commerce.dao.UserRepository;
 import com.commerce.error.exception.InvalidArgumentException;
+import com.commerce.error.exception.ResourceNotFoundException;
 import com.commerce.mapper.cart.CartResponseMapper;
 import com.commerce.model.entity.Cart;
 import com.commerce.model.entity.CartItem;
@@ -208,12 +209,12 @@ public class CartServiceImplTest {
         productVariant.setShippingPrice((double) faker.number().randomNumber());
         productVariant.setStock(amount + 1);
 
-        List<CartItem> cartItemList = new ArrayList<>();
+        List<CartItem> cartItems = new ArrayList<>();
         CartItem cartItem = new CartItem();
         cartItem.setProductVariant(productVariant);
         cartItem.setQuantity(productVariant.getStock() + amount);
-        cartItemList.add(cartItem);
-        cart.setCartItems(cartItemList);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
 
         given(userService.getCurrentUser()).willReturn(userResponse);
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
@@ -246,6 +247,120 @@ public class CartServiceImplTest {
 
     }
 
-    
+    @Test
+    void it_should_increment_cart_item() {
+
+        // given
+        ArgumentCaptor<Cart> cartArgumentCaptor = ArgumentCaptor.forClass(Cart.class);
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setPrice((double) faker.number().randomNumber());
+        productVariant.setShippingPrice((double) faker.number().randomNumber());
+        productVariant.setStock(amount + 1);
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(1);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        CartResponse expected = new CartResponse();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(cartResponseMapper.apply(cart)).willReturn(expected);
+
+        // when
+        CartResponse actual = cartService.incrementCartItem(cartItemId, amount);
+
+        // then
+        BDDMockito.then(cartRepository).should().save(cartArgumentCaptor.capture());
+        then(cartArgumentCaptor.getValue().getCartItems().get(0).getId()).isEqualTo(cartItemId);
+        then(cartArgumentCaptor.getValue().getCartItems().size()).isEqualTo(1);
+        then(cartArgumentCaptor.getValue().getCartItems().get(0).getQuantity()).isEqualTo(amount + 1);
+
+        then(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_increment_and_no_stock() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+
+        ProductVariant productVariant = new ProductVariant();
+        productVariant.setStock(amount - 1);
+
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setProductVariant(productVariant);
+        cartItem.setQuantity(productVariant.getStock());
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.incrementCartItem(cartItemId, amount))
+                .isInstanceOf(InvalidArgumentException.class).hasMessage("Product does not have desired stock.");
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_increment_and_no_cart_item() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        Cart cart = new Cart();
+        user.setCart(cart);
+        cart.setUser(user);
+        List<CartItem> cartItems = new ArrayList<>();
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId + 1);
+        cartItems.add(cartItem);
+        cart.setCartItems(cartItems);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.incrementCartItem(cartItemId, amount))
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("CartItem not found");
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_increment_and_no_cart() {
+
+        // given
+        Long cartItemId = faker.number().randomNumber();
+        Integer amount = faker.number().randomDigitNotZero();
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when, then
+        thenThrownBy(() -> cartService.incrementCartItem(cartItemId, amount))
+                .isInstanceOf(ResourceNotFoundException.class).hasMessage("Empty cart");
+
+    }
 
 }
