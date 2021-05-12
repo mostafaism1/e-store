@@ -1,6 +1,7 @@
 package com.commerce.service.cart;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +10,9 @@ import com.commerce.dao.ProductVariantRepository;
 import com.commerce.dao.UserRepository;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
+import com.commerce.mapper.cart.CartItemDTOMapper;
 import com.commerce.mapper.cart.CartResponseMapper;
+import com.commerce.mapper.discount.DiscountDTOMapper;
 import com.commerce.model.entity.Cart;
 import com.commerce.model.entity.CartItem;
 import com.commerce.model.entity.ProductVariant;
@@ -32,6 +35,8 @@ public class CartServiceImpl implements CartService {
     private final ProductVariantRepository productVariantRepository;
     private final CartRepository cartRepository;
     private final CartResponseMapper cartResponseMapper;
+    private final CartItemDTOMapper cartItemDTOMapper;
+    private final DiscountDTOMapper discountDTOMapper;
 
     @Override
     public CartResponse addToCart(Long id, Integer amount) {
@@ -132,8 +137,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public boolean confirmCart(ConfirmCartRequest confirmCartRequest) {
-        // TODO Auto-generated method stub
-        return false;
+
+        User user = getCurrentUser();
+        Cart cart = user.getCart();
+        CartResponse cartResponse = cartResponseMapper.apply(cart);
+
+        return new HashSet<>(cartResponse.getCartItems()).equals(new HashSet<>(confirmCartRequest.getCartItems()))
+                && cartResponse.getDiscount().equals(confirmCartRequest.getDiscount())
+                && cartResponse.getTotalCartPrice().equals(confirmCartRequest.getTotalCartPrice())
+                && cartResponse.getTotalPrice().equals(confirmCartRequest.getTotalPrice())
+                && cartResponse.getTotalShippingPrice().equals(confirmCartRequest.getTotalShippingPrice());
+
     }
 
     @Override
