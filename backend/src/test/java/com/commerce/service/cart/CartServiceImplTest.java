@@ -697,4 +697,37 @@ public class CartServiceImplTest {
 
     }
 
+    @Test
+    void it_should_get_cart() {
+
+        // given
+        Cart cart = new Cart();
+        user.setCart(cart);
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        Cart cartResult = cartService.getCart();
+
+        // then
+        then(cartResult).isEqualTo(cart);
+
+    }
+
+    @Test
+    void it_should_get_cart_when_it_is_null() {
+
+        // given
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        Cart cartResult = cartService.getCart();
+
+        // then
+        then(cartResult).isEqualTo(null);
+
+    }
+
 }
