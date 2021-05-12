@@ -24,6 +24,10 @@ public interface CartService {
 
     void emptyCart();
 
-    Cart calculatePrice(Cart cart);
+    Double calculateTotalCartPrice(Cart cart);
+
+    Double calculateTotalPrice(Cart cart);
+
+    Double calculateTotalShippingPrice(Cart cart);
 
 }

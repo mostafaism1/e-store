@@ -35,8 +35,6 @@ public class CartServiceImpl implements CartService {
     private final ProductVariantRepository productVariantRepository;
     private final CartRepository cartRepository;
     private final CartResponseMapper cartResponseMapper;
-    private final CartItemDTOMapper cartItemDTOMapper;
-    private final DiscountDTOMapper discountDTOMapper;
 
     @Override
     public CartResponse addToCart(Long id, Integer amount) {
@@ -177,7 +175,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart calculatePrice(Cart cart) {
+    public Double calculateTotalCartPrice(Cart cart) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Double calculateTotalPrice(Cart cart) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Double calculateTotalShippingPrice(Cart cart) {
         // TODO Auto-generated method stub
         return null;
     }
