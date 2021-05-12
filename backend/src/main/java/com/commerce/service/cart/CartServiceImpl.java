@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
         } else {
             throw new InvalidArgumentException("Product does not have desired stock.");
         }
-
+        
         cart = cartRepository.save(cart);
 
         return cartResponseMapper.apply(cart);
@@ -73,8 +73,20 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse incrementCartItem(Long cartItemId, Integer amount) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getCurrentUser();
+        Cart cart = user.getCart();
+        if (cart == null) {
+            throw new ResourceNotFoundException("Empty cart");
+        }
+
+        CartItem cartItem = getCartItem(cart, cartItemId);
+        incrementCartItem(cartItem, amount);
+
+        cartRepository.save(cart);
+
+        return cartResponseMapper.apply(cart);
+
     }
 
     @Override
@@ -160,5 +172,19 @@ public class CartServiceImpl implements CartService {
         UserResponse currentUser = userService.getCurrentUser();
         User user = userRepository.findByEmail(currentUser.getEmail()).get();
         return user;
+    }
+
+    private void incrementCartItem(CartItem cartItem, Integer amount) {
+        if (productVariantHasEnoughStock(cartItem.getProductVariant(), cartItem.getQuantity() + amount)) {
+            cartItem.setQuantity(cartItem.getQuantity() + amount);
+        } else {
+            throw new InvalidArgumentException("Product does not have desired stock.");
+        }
+    }
+
+    private CartItem getCartItem(Cart cart, Long cartItemId) {
+        CartItem cartItem = cart.getCartItems().stream().filter(item -> item.getId() == cartItemId).findAny()
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem not found"));
+        return cartItem;
     }
 }
