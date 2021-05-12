@@ -730,4 +730,31 @@ public class CartServiceImplTest {
 
     }
 
+    @Test
+    void it_should_save_cart() {
+
+        // given
+        ArgumentCaptor<Cart> cartArgumentCaptor = ArgumentCaptor.forClass(Cart.class);
+        Cart cart = new Cart();
+
+        given(cartRepository.save(cart)).willReturn(cart);
+
+        // when
+        cartService.saveCart(cart);
+
+        // then
+        BDDMockito.then(cartRepository).should().save(cartArgumentCaptor.capture());
+        then(cartArgumentCaptor.getValue()).isEqualTo(cart);
+
+    }
+
+    @Test
+    void it_should_throw_exception_when_save_null_cart() {
+
+        // when, then
+        thenThrownBy(() -> cartService.saveCart(null)).isInstanceOf(InvalidArgumentException.class)
+                .hasMessage("Cart is null");
+
+    }
+
 }
