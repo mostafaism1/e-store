@@ -680,4 +680,21 @@ public class CartServiceImplTest {
 
     }
 
+    @Test
+    void it_should_empty_cart() {
+
+        // given
+        user.setCart(new Cart());
+
+        given(userService.getCurrentUser()).willReturn(userResponse);
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        // when
+        cartService.emptyCart();
+
+        // then
+        then(user.getCart()).isEqualTo(null);
+
+    }
+
 }
