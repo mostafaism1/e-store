@@ -113,8 +113,21 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse removeFromCart(Long id) {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getCurrentUser();
+        Cart cart = user.getCart();
+        if (cart == null) {
+            throw new ResourceNotFoundException("Empty cart");
+        }
+
+        CartItem cartItem = getCartItem(cart, id);
+
+        removeCartItem(cart, cartItem);
+
+        cartRepository.save(cart);
+
+        return cartResponseMapper.apply(cart);
+
     }
 
     @Override
