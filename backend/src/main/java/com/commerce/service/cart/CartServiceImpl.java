@@ -104,8 +104,11 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse fetchCart() {
-        // TODO Auto-generated method stub
-        return null;
+
+        User user = getCurrentUser();
+        Cart cart = user.getCart();
+
+        return cartResponseMapper.apply(cart);
     }
 
     @Override
