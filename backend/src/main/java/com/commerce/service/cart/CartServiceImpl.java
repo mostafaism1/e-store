@@ -10,9 +10,7 @@ import com.commerce.dao.ProductVariantRepository;
 import com.commerce.dao.UserRepository;
 import com.commerce.error.exception.InvalidArgumentException;
 import com.commerce.error.exception.ResourceNotFoundException;
-import com.commerce.mapper.cart.CartItemDTOMapper;
 import com.commerce.mapper.cart.CartResponseMapper;
-import com.commerce.mapper.discount.DiscountDTOMapper;
 import com.commerce.model.entity.Cart;
 import com.commerce.model.entity.CartItem;
 import com.commerce.model.entity.ProductVariant;
@@ -197,8 +195,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Double calculateTotalShippingPrice(Cart cart) {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (cart == null)
+            throw new InvalidArgumentException("Cart is null");
+
+        Double result = 0D;
+        for (CartItem cartItem : cart.getCartItems()) {
+            result += cartItem.getProductVariant().getShippingPrice() * cartItem.getQuantity();
+        }
+
+        return result;
+
     }
 
     private boolean productVariantHasEnoughStock(ProductVariant productVariant, Integer amount) {
