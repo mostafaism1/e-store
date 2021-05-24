@@ -8,16 +8,19 @@ import com.commerce.model.entity.Cart;
 import com.commerce.model.response.cart.CartResponse;
 import com.commerce.service.cart.CartService;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import lombok.AllArgsConstructor;
-
 @Component
-@AllArgsConstructor
 public class CartResponseMapper implements Function<Cart, CartResponse> {
 
     private CartItemDTOMapper cartItemDTOMapper;
     private CartService cartService;
+
+    public CartResponseMapper(CartItemDTOMapper cartItemDTOMapper, @Lazy CartService cartService) {
+        this.cartItemDTOMapper = cartItemDTOMapper;
+        this.cartService = cartService;
+    }
 
     @Override
     public CartResponse apply(Cart cart) {
