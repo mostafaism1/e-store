@@ -1,0 +1,69 @@
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: INFO
+server:
+  error:
+    whitelabel:
+      enabled: true
+  port: 8080
+spring:
+  profiles:
+    active: dev
+  jackson:
+    date-format: MMMM dd yyyy / HH:mm
+  jpa:
+    hibernate:
+      format_sql: true
+  mail:
+    host: smtp.gmail.com
+    host_address: host_address
+    username: username
+    password: password
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+            required: true
+          timeout: 5000
+          writetimeout: 5000
+    protocol: smtp
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+security:
+  public-pattern: /api/public/**
+  auth:
+    username: user_name
+    url: http://localhost:8081/oauth/check_token
+    client_id: client_id
+    client_password: client_password
+    connection_timeout: 60
+    read_timeout: 60
+    whitelist: >
+      /,
+      /v2/api-docs,
+      /swagger-resources,
+      /swagger-resources/**,
+      /configuration/ui,
+      /configuration/security,
+      /swagger-ui.html,
+      /webjars/**,
+      /api/public/**
+
+swagger:
+  host:
+    address: localhost:8080
+    path: /
+  api:
+    name: SightWare Api Documentation
+    version: v1
+  contact:
+    name: Mostafa Hassanein
+    url:
+    email: most.hassanein@gmail.com
