@@ -10,6 +10,7 @@ import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { ShippingComponent } from './shipping/shipping.component';
 import { SuccessComponent } from './success/success.component';
 import { SummaryComponent } from './summary/summary.component';
+import { BankAcceptComponent } from './summary/bank-accept/bank-accept.component';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { SummaryComponent } from './summary/summary.component';
     ProgressBarComponent,
     ShippingComponent,
     SuccessComponent,
-    SummaryComponent
+    SummaryComponent,
+    BankAcceptComponent
   ],
   imports: [
     CommonModule,
