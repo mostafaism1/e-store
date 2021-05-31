@@ -6,6 +6,7 @@ import { HomeComponent } from './home.component';
 import { BannerComponent } from './banner/banner.component';
 import { ImageSliderComponent } from './image-slider/image-slider.component';
 import { MostSellingComponent } from './most-selling/most-selling.component';
+import { NewlyAddedComponent } from './newly-added/newly-added.component';
 
 
 @NgModule({
@@ -13,7 +14,8 @@ import { MostSellingComponent } from './most-selling/most-selling.component';
     HomeComponent,
     BannerComponent,
     ImageSliderComponent,
-    MostSellingComponent
+    MostSellingComponent,
+    NewlyAddedComponent
   ],
   imports: [
     CommonModule,
