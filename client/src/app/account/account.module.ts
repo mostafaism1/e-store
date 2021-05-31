@@ -7,6 +7,7 @@ import { AddressComponent } from './address/address.component';
 import { HelpComponent } from './help/help.component';
 import { ListOrdersComponent } from './list-orders/list-orders.component';
 import { InformationComponent } from './information/information.component';
+import { ResetDetailsComponent } from './information/reset-details/reset-details.component';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { InformationComponent } from './information/information.component';
     AddressComponent,
     HelpComponent,
     ListOrdersComponent,
-    InformationComponent
+    InformationComponent,
+    ResetDetailsComponent
   ],
   imports: [
     CommonModule,
