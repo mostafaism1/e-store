@@ -4,12 +4,14 @@ import { CommonModule } from '@angular/common';
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home.component';
 import { BannerComponent } from './banner/banner.component';
+import { ImageSliderComponent } from './image-slider/image-slider.component';
 
 
 @NgModule({
   declarations: [
     HomeComponent,
-    BannerComponent
+    BannerComponent,
+    ImageSliderComponent
   ],
   imports: [
     CommonModule,
