@@ -9,6 +9,7 @@ import { PersonalComponent } from './personal/personal.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { ShippingComponent } from './shipping/shipping.component';
 import { SuccessComponent } from './success/success.component';
+import { SummaryComponent } from './summary/summary.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { SuccessComponent } from './success/success.component';
     PersonalComponent,
     ProgressBarComponent,
     ShippingComponent,
-    SuccessComponent
+    SuccessComponent,
+    SummaryComponent
   ],
   imports: [
     CommonModule,
