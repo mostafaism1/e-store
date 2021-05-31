@@ -7,6 +7,7 @@ import { ConfirmationComponent } from './confirmation/confirmation.component';
 import { PaymentComponent } from './payment/payment.component';
 import { PersonalComponent } from './personal/personal.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { ShippingComponent } from './shipping/shipping.component';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { ProgressBarComponent } from './progress-bar/progress-bar.component';
     ConfirmationComponent,
     PaymentComponent,
     PersonalComponent,
-    ProgressBarComponent
+    ProgressBarComponent,
+    ShippingComponent
   ],
   imports: [
     CommonModule,
