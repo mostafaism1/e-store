@@ -8,6 +8,7 @@ import { PaymentComponent } from './payment/payment.component';
 import { PersonalComponent } from './personal/personal.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { ShippingComponent } from './shipping/shipping.component';
+import { SuccessComponent } from './success/success.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { ShippingComponent } from './shipping/shipping.component';
     PaymentComponent,
     PersonalComponent,
     ProgressBarComponent,
-    ShippingComponent
+    ShippingComponent,
+    SuccessComponent
   ],
   imports: [
     CommonModule,
