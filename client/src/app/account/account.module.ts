@@ -6,6 +6,7 @@ import { AccountComponent } from './account.component';
 import { AddressComponent } from './address/address.component';
 import { HelpComponent } from './help/help.component';
 import { ListOrdersComponent } from './list-orders/list-orders.component';
+import { InformationComponent } from './information/information.component';
 
 
 @NgModule({
@@ -13,7 +14,8 @@ import { ListOrdersComponent } from './list-orders/list-orders.component';
     AccountComponent,
     AddressComponent,
     HelpComponent,
-    ListOrdersComponent
+    ListOrdersComponent,
+    InformationComponent
   ],
   imports: [
     CommonModule,
