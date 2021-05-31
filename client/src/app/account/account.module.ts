@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 
 import { AccountRoutingModule } from './account-routing.module';
 import { AccountComponent } from './account.component';
+import { AddressComponent } from './address/address.component';
 
 
 @NgModule({
   declarations: [
-    AccountComponent
+    AccountComponent,
+    AddressComponent
   ],
   imports: [
     CommonModule,
