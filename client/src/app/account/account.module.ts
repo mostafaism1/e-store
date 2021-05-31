@@ -8,6 +8,7 @@ import { HelpComponent } from './help/help.component';
 import { ListOrdersComponent } from './list-orders/list-orders.component';
 import { InformationComponent } from './information/information.component';
 import { ResetDetailsComponent } from './information/reset-details/reset-details.component';
+import { ResetPasswordComponent } from './information/reset-password/reset-password.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { ResetDetailsComponent } from './information/reset-details/reset-details
     HelpComponent,
     ListOrdersComponent,
     InformationComponent,
-    ResetDetailsComponent
+    ResetDetailsComponent,
+    ResetPasswordComponent
   ],
   imports: [
     CommonModule,
