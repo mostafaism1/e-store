@@ -11,6 +11,7 @@ import { ShippingComponent } from './shipping/shipping.component';
 import { SuccessComponent } from './success/success.component';
 import { SummaryComponent } from './summary/summary.component';
 import { BankAcceptComponent } from './summary/bank-accept/bank-accept.component';
+import { TermsComponent } from './summary/terms/terms.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { BankAcceptComponent } from './summary/bank-accept/bank-accept.component
     ShippingComponent,
     SuccessComponent,
     SummaryComponent,
-    BankAcceptComponent
+    BankAcceptComponent,
+    TermsComponent
   ],
   imports: [
     CommonModule,
